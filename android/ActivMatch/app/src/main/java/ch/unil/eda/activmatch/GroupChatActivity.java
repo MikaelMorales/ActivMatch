@@ -14,6 +14,8 @@ import android.widget.TextView;
 import com.jakewharton.rxbinding.widget.RxTextView;
 import com.jakewharton.rxbinding.widget.TextViewTextChangeEvent;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -26,6 +28,7 @@ import rx.android.schedulers.AndroidSchedulers;
 
 public class GroupChatActivity extends AppCompatActivity {
 
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
     private Subscription searchBarSubscription = null;
