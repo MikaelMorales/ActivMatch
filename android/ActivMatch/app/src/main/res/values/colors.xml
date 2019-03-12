@@ -13,4 +13,8 @@
     <color name="green">#003b00</color>
     <color name="light_green">#e1f7c1</color>
     <color name="red">#7c0006</color>
+
+    <color name="light_blue">#f0ffff</color>
+
+
 </resources>
