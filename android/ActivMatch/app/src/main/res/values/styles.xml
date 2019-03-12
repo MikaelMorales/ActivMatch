@@ -17,4 +17,21 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="ActivMatch.Title" parent="Base.TextAppearance.AppCompat.Title">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="ActivMatch.Subtitle" parent="Base.TextAppearance.AppCompat.Subhead">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/gray</item>
+    </style>
+
+    <style name="ActivMatch.Header" parent="Base.TextAppearance.AppCompat.Title">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">6dp</item>
+    </style>
+
+
 </resources>

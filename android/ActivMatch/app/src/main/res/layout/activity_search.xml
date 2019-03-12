@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    tools:context=".SearchActivity">
+
+    <android.support.v7.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="6dp"
+        android:layout_marginRight="6dp"
+        android:padding="0dp"
+        app:cardBackgroundColor="@color/light_gray"
+        app:contentPadding="0dp"
+        app:cardElevation="2dp"
+        app:cardCornerRadius="2dp"
+        app:cardPreventCornerOverlap="false"
+        app:cardUseCompatPadding="true">
+
+        <LinearLayout
+            android:id="@+id/search_bar_wrapper"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <ImageView
+                android:src="@drawable/ic_search"
+                android:padding="6dp"
+                android:layout_gravity="center_vertical"
+                android:tint="@color/gray"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"/>
+
+            <EditText
+                android:id="@+id/searchinput"
+                android:background="@color/transparent"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:maxLines="1"
+                android:hint="@string/search_hint"
+                android:imeOptions="actionSearch|flagNoExtractUi"
+                android:inputType="text"
+                android:layout_width="match_parent"
+                android:importantForAutofill="no"
+                style="@style/ActivMatch.Subtitle"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

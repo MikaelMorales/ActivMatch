@@ -1,8 +1,6 @@
 package ch.unil.eda.activmatch;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -17,23 +15,17 @@ import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
 
-public class MainActivity extends AppCompatActivity {
-
+public class GroupDetailsActivity extends AppCompatActivity {
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_group_details);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        // TODO: Set toolbar title with group name
         setSupportActionBar(toolbar);
-
-        FloatingActionButton createGroup = findViewById(R.id.fab_create_group);
-        createGroup.setOnClickListener(c -> {
-            Intent intent = new Intent(this, CreateGroupActivity.class);
-            startActivity(intent);
-        });
 
         refreshLayout = findViewById(R.id.swipe_refresh_layout);
         recyclerView = new RecyclerView(getApplicationContext());
@@ -41,19 +33,39 @@ public class MainActivity extends AppCompatActivity {
         refreshLayout.setOnRefreshListener(() -> {}); // TODO
 
         GenericAdapter<Pair<Integer, String>> adapter = new GenericAdapter<>(new CellView<>(
-                ViewId.of(R.layout.group_simple_card),
-                (item, view) -> {
-                    ((TextView) view).setText(item.second);
-                    view.setOnClickListener(c -> {
-                        // TODO:
-                    });
+                ViewId.of(R.layout.simple_header_cell),
+                (item, view) -> ((TextView) view).setText(item.second)
+        ));
+
+        adapter.setCellDefinerForType(2, new CellView<>(
+                ViewId.of(R.layout.simple_text_cell),
+                (item, view) -> ((TextView) view).setText(item.second)
+        ));
+
+        adapter.setCellDefinerForType(3, new CellView<>(
+                ViewId.of(R.layout.members_card),
+                new int[] {R.id.member_name, R.id.member_status},
+                (id, item, view) -> {
+                    if (id == R.id.member_name) {
+                        ((TextView) view).setText(item.second);
+                    } else if (id == R.id.member_status) {
+                        // TODO
+                    }
                 }
         ));
 
-        adapter.setCellDefinerForType(99, new CellView<>(
+        adapter.setCellDefinerForType(4, new CellView<>(
+                ViewId.of(R.layout.simple_fab_cell),
+                (item, view) -> view.setOnClickListener(c -> {})
+        ));
+
+        adapter.setCellDefinerForType(98, new CellView<>(
                 ViewId.of(R.layout.simple_error_cell),
                 (item, view) -> ((TextView) view).setText(item.second)
         ));
+
+        adapter.setCellDefinerForType(99, new CellView<>(
+                ViewId.of(R.layout.spacer_cell)));
 
         adapter.setViewTypeMapper(p -> p.first);
         recyclerView.setAdapter(adapter);
@@ -62,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_activity_menu, menu);
+        getMenuInflater().inflate(R.menu.group_details_menu, menu);
         return true;
     }
 
@@ -70,12 +82,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_status) {
-            // TODO: Handle status
-            return true;
-        } else if (id == R.id.action_search) {
-            Intent intent = new Intent(this, SearchActivity.class);
-            startActivity(intent);
+        if (id == R.id.action_quit) {
+            // TODO: Handle exiting group
             return true;
         }
 
