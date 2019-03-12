@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -18,6 +19,9 @@ public class CreateGroupActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(getString(R.string.activity_create_group_title));
         setSupportActionBar(toolbar);
+
+        SwipeRefreshLayout refreshLayout = findViewById(R.id.swipe_refresh_layout);
+        refreshLayout.setEnabled(false);
 
         MaterialButton groupRange = findViewById(R.id.group_range);
         TextInputEditText groupDescription = findViewById(R.id.group_description);
