@@ -11,6 +11,9 @@ import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
 import com.jakewharton.rxbinding.widget.RxTextView;
 import com.jakewharton.rxbinding.widget.TextViewTextChangeEvent;
 
@@ -20,6 +23,7 @@ import java.util.function.Consumer;
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
+import ch.unil.eda.activmatch.notifications.ActivMatchNotificationService;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -67,6 +71,25 @@ public class SearchActivity extends AppCompatActivity {
                         //TODO
                     }
                 }));
+
+
+        String fcmToken = ActivMatchNotificationService.getToken(getApplicationContext());
+        if (fcmToken == null) {
+            FirebaseInstanceId.getInstance().getInstanceId()
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+
+                        // Subscription matchmore
+                    });
+        } else {
+            // Subscription matchmore
+        }
+
     }
 
     private Observer<TextViewTextChangeEvent> createSearchBarObserver(Consumer<Boolean> listener) {
