@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
+import ch.unil.eda.activmatch.io.ActivMatchStorage;
 import ch.unil.eda.activmatch.notifications.ActivMatchNotificationService;
 import rx.Observer;
 import rx.Subscription;
@@ -34,6 +35,8 @@ public class SearchActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private String searchQuery;
     private Subscription searchBarSubscription = null;
+
+    private ActivMatchStorage amStorage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +75,8 @@ public class SearchActivity extends AppCompatActivity {
                     }
                 }));
 
-
-/*        String fcmToken = ActivMatchNotificationService.getToken(getApplicationContext());
+        amStorage = new ActivMatchStorage(this);
+        String fcmToken = amStorage.getFcmToken();
         if (fcmToken == null) {
             FirebaseInstanceId.getInstance().getInstanceId()
                     .addOnCompleteListener(task -> {
@@ -89,7 +92,7 @@ public class SearchActivity extends AppCompatActivity {
         } else {
             // Subscription matchmore
         }
-*/
+
     }
 
     private Observer<TextViewTextChangeEvent> createSearchBarObserver(Consumer<Boolean> listener) {
