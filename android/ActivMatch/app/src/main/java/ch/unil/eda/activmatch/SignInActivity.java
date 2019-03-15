@@ -16,10 +16,14 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
+import ch.unil.eda.activmatch.models.User;
+import ch.unil.eda.activmatch.models.UserStatus;
+
 public class SignInActivity extends AppCompatActivity {
 
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 1;
+    public static final String USER_FROM_SIGNIN = "USER_FROM_SIGNIN";
 
     private GoogleSignInClient mGoogleSignInClient;
 
@@ -41,7 +45,7 @@ public class SignInActivity extends AppCompatActivity {
                 .build();
 
         // Build a GoogleSignInClient with the options specified by gso.
-       mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
     @Override
@@ -52,7 +56,7 @@ public class SignInActivity extends AppCompatActivity {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if (account != null) {
             // Launch main activity
-            toMainActivity();
+            toMainActivity(account);
         }
     }
 
@@ -87,18 +91,30 @@ public class SignInActivity extends AppCompatActivity {
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
+            if (account == null) {
+                handleSignInFailure();
+                return;
+            }
             // Signed in successfully, show authenticated UI.
-            toMainActivity();
+            toMainActivity(account);
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            Toast.makeText(this, "The sign-in failed.", Toast.LENGTH_LONG).show();
+            handleSignInFailure();
         }
     }
 
-    private void toMainActivity() {
-        startActivity(new Intent(this, MainActivity.class));
+    private void handleSignInFailure() {
+        Toast.makeText(this, "The sign-in failed.", Toast.LENGTH_LONG).show();
+    }
+
+    private void toMainActivity(final GoogleSignInAccount account) {
+        User u = accountToUser(account);
+        startActivity(new Intent(this, MainActivity.class).putExtra(USER_FROM_SIGNIN, u));
+    }
+
+    private User accountToUser(final GoogleSignInAccount account) {
+        return new User(account.getId(), account.getDisplayName(), UserStatus.AVAILABLE);
     }
 }
