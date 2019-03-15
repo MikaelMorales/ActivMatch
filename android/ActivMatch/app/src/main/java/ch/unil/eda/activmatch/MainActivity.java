@@ -1,15 +1,12 @@
 package ch.unil.eda.activmatch;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -17,27 +14,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
-
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
-import io.matchmore.sdk.Matchmore;
-import io.matchmore.sdk.MatchmoreSDK;
-import io.matchmore.sdk.api.models.Publication;
-import io.matchmore.sdk.api.models.Subscription;
+import ch.unil.eda.activmatch.io.ActivMatchStorage;
+import ch.unil.eda.activmatch.models.GroupHeading;
+import ch.unil.eda.activmatch.models.UserStatus;
+import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
+import ch.unil.eda.activmatch.utils.AlertDialogUtils;
+import ch.unil.eda.activmatch.utils.Holder;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ActivMatchActivity {
 
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
-    private MatchmoreSDK matchmore;
+    private ActivMatchStorage storage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,13 +41,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Configuration of api key/world id
-        if (!Matchmore.isConfigured()) {
-            Matchmore.config(this, getString(R.string.matchmore_api_key), true);
-        }
-
-        // Getting instance. It's static variable. It's possible to have only one instance of matchmore.
-        matchmore = Matchmore.getInstance();
+        storage = new ActivMatchStorage(this);
 
         FloatingActionButton createGroup = findViewById(R.id.fab_create_group);
         createGroup.setOnClickListener(c -> {
@@ -63,22 +52,27 @@ public class MainActivity extends AppCompatActivity {
         refreshLayout = findViewById(R.id.swipe_refresh_layout);
         recyclerView = new RecyclerView(getApplicationContext());
         refreshLayout.addView(recyclerView);
-        refreshLayout.setOnRefreshListener(() -> {
-        }); // TODO
+        refreshLayout.setOnRefreshListener(this::updateDisplay);
 
-        GenericAdapter<Pair<Integer, String>> adapter = new GenericAdapter<>(new CellView<>(
+        GenericAdapter<Pair<Integer, GroupHeading>> adapter = new GenericAdapter<>(new CellView<>(
                 ViewId.of(R.layout.group_simple_card),
                 (item, view) -> {
-                    ((TextView) view).setText(item.second);
+                    ((TextView) view).setText(item.second.getName());
                     view.setOnClickListener(c -> {
-                        // TODO:
+                        Intent intent = new Intent(this, GroupDetailsActivity.class);
+                        intent.putExtra(GroupDetailsActivity.GROUP_ID_KEY, item.second.getGroupId());
+                        startActivity(intent);
                     });
                 }
         ));
 
+        adapter.setCellDefinerForType(98, new CellView<>(
+                ViewId.of(R.layout.spacer_cell)
+        ));
+
         adapter.setCellDefinerForType(99, new CellView<>(
                 ViewId.of(R.layout.simple_error_cell),
-                (item, view) -> ((TextView) view).setText(item.second)
+                (item, view) -> ((TextView) view).setText(item.second.getName())
         ));
 
         adapter.setViewTypeMapper(p -> p.first);
@@ -86,7 +80,13 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
         // Request Location permission
-        requestLocationPermission();
+        ActivMatchPermissions.requestLocationPermission(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateDisplay();
     }
 
     @Override
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_status) {
-            // TODO: Handle status
+            toggleStatusView();
             return true;
         } else if (id == R.id.action_search) {
             Intent intent = new Intent(this, SearchActivity.class);
@@ -111,21 +111,65 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1) {
-            if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    matchmore.startUpdatingLocation();
-                }
+    private void updateDisplay() {
+        refreshLayout.setRefreshing(true);
+        String userId = storage.getUser().getId();
+
+        List<Pair<Integer, GroupHeading>> items = new ArrayList<>();
+        GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
+
+        List<GroupHeading> groups = service.getGroups(userId);
+        if (groups.isEmpty()) {
+            items.add(new Pair<>(99, createDummyGroupHeading(getString(R.string.no_group_result))));
+        } else {
+            for (GroupHeading groupHeading : groups) {
+                items.add(new Pair<>(0, groupHeading));
             }
         }
+
+        items.add(new Pair<>(98, null));
+
+        adapter.setItems(items);
+        adapter.notifyDataSetChanged();
+        refreshLayout.setRefreshing(false);
     }
 
-    private void requestLocationPermission() {
-        ActivityCompat.requestPermissions(this, new String[]
-                {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+    private GroupHeading createDummyGroupHeading(String text) {
+        return new GroupHeading("", text, "");
+    }
+
+    private void toggleStatusView() {
+        String userId = storage.getUser().getId();
+        UserStatus userStatus = service.getStatus(userId);
+        List<UserStatus> items = Arrays.asList(UserStatus.AVAILABLE, UserStatus.BUSY);
+
+        Holder<AlertDialog> holder = new Holder<>();
+        AlertDialog alertDialog = AlertDialogUtils.createDialog(
+                this,
+                getString(R.string.change_status),
+                items,
+                new CellView<>(
+                        ViewId.of(R.layout.dialog_cell),
+                        new int[] {R.id.dialog_text},
+                        (id, item, view) -> {
+                            if (id == R.id.dialog_text) {
+                                int textId = item == UserStatus.AVAILABLE ? R.string.status_available : R.string.status_busy;
+                                ((TextView) view).setText(textId);
+                                if (userStatus == item) {
+                                    ((TextView) view).setTypeface(((TextView) view).getTypeface(), Typeface.BOLD);
+                                } else {
+                                    ((TextView) view).setTypeface(((TextView) view).getTypeface(), Typeface.NORMAL);
+                                }
+                            }
+                        },
+                        (item, view) -> view.setOnClickListener(c -> {
+                            service.setStatus(userId, item);
+                            holder.value.dismiss();
+                        })
+                )
+        );
+        holder.value = alertDialog;
+        alertDialog.show();
+
     }
 }

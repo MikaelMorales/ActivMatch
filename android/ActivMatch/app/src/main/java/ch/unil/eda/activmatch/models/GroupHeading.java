@@ -1,5 +1,7 @@
 package ch.unil.eda.activmatch.models;
 
+import android.support.annotation.NonNull;
+
 public class GroupHeading {
 
     private String mGroupId;
@@ -12,6 +14,7 @@ public class GroupHeading {
         mDescription = description;
     }
 
+    @NonNull
     public String getGroupId() {
         return mGroupId;
     }
@@ -20,6 +23,7 @@ public class GroupHeading {
         this.mGroupId = groupId;
     }
 
+    @NonNull
     public String getName() {
         return mName;
     }
@@ -28,6 +32,7 @@ public class GroupHeading {
         this.mName = name;
     }
 
+    @NonNull
     public String getDescription() {
         return mDescription;
     }

@@ -16,6 +16,8 @@ import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
 
 public class GroupDetailsActivity extends AppCompatActivity {
+    public static final String GROUP_ID_KEY = "GROUP_ID_KEY";
+
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
 

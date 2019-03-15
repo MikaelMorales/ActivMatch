@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.Task;
 import ch.unil.eda.activmatch.io.ActivMatchStorage;
 import ch.unil.eda.activmatch.models.User;
 import ch.unil.eda.activmatch.models.UserStatus;
+import io.matchmore.sdk.Matchmore;
 
 public class SignInActivity extends ActivMatchActivity {
 
@@ -31,10 +32,12 @@ public class SignInActivity extends ActivMatchActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signin);
+        findViewById(R.id.signin_layout).setVisibility(View.INVISIBLE);
 
-        // Set the dimensions of the sign-in button.
-        SignInButton signInButton = findViewById(R.id.sign_in_button);
-        signInButton.setSize(SignInButton.SIZE_STANDARD);
+        // Configuration of api key/world id
+        if (!Matchmore.isConfigured()) {
+            Matchmore.config(this, getString(R.string.matchmore_api_key), true);
+        }
 
         findViewById(R.id.sign_in_button).setOnClickListener(this::onSignInClick);
 
@@ -59,7 +62,9 @@ public class SignInActivity extends ActivMatchActivity {
         if (account != null) {
             // Launch main activity
             toMainActivity(account);
+            return;
         }
+        findViewById(R.id.signin_layout).setVisibility(View.VISIBLE);
     }
 
     @Override

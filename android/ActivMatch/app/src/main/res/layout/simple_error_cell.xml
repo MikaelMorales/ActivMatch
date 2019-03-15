@@ -5,5 +5,5 @@
     android:layout_height="wrap_content"
     android:gravity="center"
     android:text="No results found, please try later !"
-    android:minLines="2"
+    android:minLines="4"
     style="@style/ActivMatch.Subtitle"/>
