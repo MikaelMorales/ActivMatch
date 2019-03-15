@@ -25,6 +25,7 @@ public class SignInActivity extends ActivMatchActivity {
     private static final int RC_SIGN_IN = 1;
 
     private GoogleSignInClient mGoogleSignInClient;
+    private ActivMatchStorage amStorage;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,6 +46,8 @@ public class SignInActivity extends ActivMatchActivity {
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        amStorage = new ActivMatchStorage(this);
     }
 
     @Override
@@ -116,8 +119,7 @@ public class SignInActivity extends ActivMatchActivity {
 
     private void storeUserLocally(final GoogleSignInAccount a) {
         User u = accountToUser(a);
-        ActivMatchStorage acStorage = new ActivMatchStorage(this);
-        acStorage.setUser(u);
+        amStorage.setUser(u);
     }
 
     private User accountToUser(final GoogleSignInAccount a) {
