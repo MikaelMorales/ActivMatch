@@ -5,6 +5,7 @@ import java.util.List;
 import ch.unil.eda.activmatch.models.Group;
 import ch.unil.eda.activmatch.models.GroupHeading;
 import ch.unil.eda.activmatch.models.Message;
+import ch.unil.eda.activmatch.models.User;
 import ch.unil.eda.activmatch.models.UserStatus;
 
 public interface ActivMatchService {
@@ -19,7 +20,7 @@ public interface ActivMatchService {
 
     void setStatus(String userId, UserStatus status);
 
-    void joinGroup(String userId, Group group);
+    void joinGroup(User user, Group group);
 
     void createGroup(Group group);
 

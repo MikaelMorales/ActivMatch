@@ -73,7 +73,7 @@ public class SearchActivity extends AppCompatActivity {
                 }));
 
 
-        String fcmToken = ActivMatchNotificationService.getToken(getApplicationContext());
+/*        String fcmToken = ActivMatchNotificationService.getToken(getApplicationContext());
         if (fcmToken == null) {
             FirebaseInstanceId.getInstance().getInstanceId()
                     .addOnCompleteListener(task -> {
@@ -89,7 +89,7 @@ public class SearchActivity extends AppCompatActivity {
         } else {
             // Subscription matchmore
         }
-
+*/
     }
 
     private Observer<TextViewTextChangeEvent> createSearchBarObserver(Consumer<Boolean> listener) {

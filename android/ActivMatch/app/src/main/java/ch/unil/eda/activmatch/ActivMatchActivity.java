@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import ch.unil.eda.activmatch.io.ActivMatchService;
-import ch.unil.eda.activmatch.io.Storage;
+import ch.unil.eda.activmatch.io.MockStorage;
 
 public class ActivMatchActivity extends AppCompatActivity {
     ActivMatchService service;
@@ -14,6 +14,6 @@ public class ActivMatchActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // service = new Storage(getApplicationContext());
+        service = new MockStorage(getApplicationContext());
     }
 }
