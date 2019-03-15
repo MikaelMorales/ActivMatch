@@ -1,6 +1,7 @@
 <resources>
     <string name="matchmore_api_key">eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhbHBzIiwic3ViIjoiMmUwZWViYTgtOTc1MC00ODFmLTkwMjAtMjNkYzFlNGI1MDhlIiwiYXVkIjpbIlB1YmxpYyJdLCJuYmYiOjE1NTI0ODQ5NTgsImlhdCI6MTU1MjQ4NDk1OCwianRpIjoiMSJ9.zJxDz2xmCeRqvoRTjRDbF-b-EyJlx0xHZarJqj34_adJAnZF-o-XaLCz4Rtl2B1uveBaEW6WgZ6V2aBAsLaYyQ</string>
     <string name="app_name">ActivMatch</string>
+    <string name="sending">Sending…</string>
 
     <!-- Main activity menu -->
     <string name="action_search">Search for groups</string>
@@ -15,7 +16,6 @@
     <string name="status_available">Available</string>
     <string name="status_busy">Busy</string>
 
-
     <!-- Search activity -->
     <string name="activity_group_search_title">Search groups</string>
     <string name="search_hint">Enter a topic name</string>
@@ -28,6 +28,7 @@
     <string name="group_name_hint">Enter a group name</string>
     <string name="group_range_hint">Select a range</string>
     <string name="group_description_hint">Enter a description</string>
+    <string name="error_fields_empty">Please fill all the fields</string>
 
     <!-- Group details activity -->
     <string name="group_members_header">Members</string>

@@ -1,6 +1,7 @@
 package ch.unil.eda.activmatch.utils;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,6 +34,34 @@ public class AlertDialogUtils {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         adapter.setItems(items);
+        return dialog;
+    }
+
+    public static void alert(Context c, CharSequence title, final Runnable onDismiss) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(c);
+        View v = View.inflate(c, R.layout.dialog_title, null);
+        TextView text = v.findViewById(R.id.dialog_text);
+        text.setText(title);
+        builder.setCustomTitle(v);
+        builder.setPositiveButton(c.getString(android.R.string.ok), (dialogInterface, i) -> dialogInterface.dismiss());
+        AlertDialog ad = builder.create();
+        ad.setCanceledOnTouchOutside(false);
+        ad.setOnDismissListener(dialogInterface -> {
+            if (onDismiss != null) {
+                onDismiss.run();
+            }
+
+        });
+        ad.show();
+    }
+
+    public static AlertDialog createLoadingDialog(Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View v = View.inflate(context, R.layout.progress_dialog, null);
+        builder.setView(v);
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
         return dialog;
     }
 }

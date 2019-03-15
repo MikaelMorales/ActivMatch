@@ -1,16 +1,37 @@
 package ch.unil.eda.activmatch;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
-public class CreateGroupActivity extends AppCompatActivity {
+import ch.unil.eda.activmatch.adapter.CellView;
+import ch.unil.eda.activmatch.adapter.ViewId;
+import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
+import ch.unil.eda.activmatch.utils.ActivMatchRanges;
+import ch.unil.eda.activmatch.utils.AlertDialogUtils;
+import ch.unil.eda.activmatch.utils.Holder;
+import io.matchmore.sdk.Matchmore;
+import io.matchmore.sdk.MatchmoreSDK;
+
+public class CreateGroupActivity extends ActivMatchActivity {
+
+    private Integer range = null;
+    private MaterialButton rangeButton;
+    private TextInputEditText groupDescription;
+    private TextInputEditText groupName;
+
+    private MatchmoreSDK matchmore;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -19,19 +40,17 @@ public class CreateGroupActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(getString(R.string.activity_create_group_title));
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        SwipeRefreshLayout refreshLayout = findViewById(R.id.swipe_refresh_layout);
-        refreshLayout.setEnabled(false);
+        matchmore = Matchmore.getInstance();
 
-        MaterialButton groupRange = findViewById(R.id.group_range);
-        TextInputEditText groupDescription = findViewById(R.id.group_description);
-        TextInputEditText groupName = findViewById(R.id.group_name);
+        rangeButton = findViewById(R.id.group_range);
+        groupDescription = findViewById(R.id.group_description);
+        groupName = findViewById(R.id.group_name);
 
-        groupRange.setOnClickListener(c -> {
+        rangeButton.setOnClickListener(c -> toggleRangeView());
 
-        });
-
-        // TODO: HANDLE INPUT !
+        ActivMatchPermissions.requestLocationPermission(this);
     }
 
 
@@ -46,10 +65,61 @@ public class CreateGroupActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_create) {
-            // TODO: CREATE GROUP !
+            Editable description = groupDescription.getText();
+            Editable name = groupName.getText();
+            if (range == null || description == null || name == null || description.toString().isEmpty() || name.toString().isEmpty()) {
+                AlertDialogUtils.alert(this, getString(R.string.error_fields_empty), null);
+            } else {
+                //matchmore.createPublication();
+                // TODO: ADD MATCHMORE AND GET GROUP ID AND SAVE SERVICE.CREATEGROUP();
+                AlertDialog alertDialog = AlertDialogUtils.createLoadingDialog(this);
+                alertDialog.show();
+                // When done we should call
+                // alertDialog.dismiss();
+            }
             return true;
+        } else if (id == android.R.id.home) {
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == ActivMatchPermissions.LOCATION_PERMISSION_CODE) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                finish();
+            } else {
+                matchmore.startUpdatingLocation();
+            }
+        }
+    }
+
+    private void toggleRangeView() {
+        Holder<AlertDialog> holder = new Holder<>();
+        AlertDialog alertDialog = AlertDialogUtils.createDialog(
+                this,
+                getString(R.string.group_range_hint),
+                ActivMatchRanges.RANGES,
+                new CellView<>(
+                        ViewId.of(R.layout.dialog_cell),
+                        new int[] {R.id.dialog_text},
+                        (id, item, view) -> {
+                            if (id == R.id.dialog_text) {
+                                ((TextView) view).setText(item.first);
+                            }
+                        },
+                        (item, view) -> view.setOnClickListener(c -> {
+                            range = item.second;
+                            rangeButton.setText(item.first);
+                            holder.value.dismiss();
+                        })
+                )
+        );
+        holder.value = alertDialog;
+        alertDialog.show();
+
     }
 }
