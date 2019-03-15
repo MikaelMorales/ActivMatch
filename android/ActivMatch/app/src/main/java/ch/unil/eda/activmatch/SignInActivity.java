@@ -3,7 +3,6 @@ package ch.unil.eda.activmatch;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -16,14 +15,14 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
+import ch.unil.eda.activmatch.io.ActivMatchStorage;
 import ch.unil.eda.activmatch.models.User;
 import ch.unil.eda.activmatch.models.UserStatus;
 
-public class SignInActivity extends AppCompatActivity {
+public class SignInActivity extends ActivMatchActivity {
 
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 1;
-    public static final String USER_FROM_SIGNIN = "USER_FROM_SIGNIN";
 
     private GoogleSignInClient mGoogleSignInClient;
 
@@ -109,12 +108,19 @@ public class SignInActivity extends AppCompatActivity {
         Toast.makeText(this, "The sign-in failed.", Toast.LENGTH_LONG).show();
     }
 
-    private void toMainActivity(final GoogleSignInAccount account) {
-        User u = accountToUser(account);
-        startActivity(new Intent(this, MainActivity.class).putExtra(USER_FROM_SIGNIN, u));
+
+    private void toMainActivity(final GoogleSignInAccount a) {
+        storeUserLocally(a);
+        startActivity(new Intent(this, MainActivity.class));
     }
 
-    private User accountToUser(final GoogleSignInAccount account) {
-        return new User(account.getId(), account.getDisplayName(), UserStatus.AVAILABLE);
+    private void storeUserLocally(final GoogleSignInAccount a) {
+        User u = accountToUser(a);
+        ActivMatchStorage acStorage = new ActivMatchStorage(this);
+        acStorage.setUser(u);
+    }
+
+    private User accountToUser(final GoogleSignInAccount a) {
+        return new User(a.getId(), a.getDisplayName(), UserStatus.AVAILABLE);
     }
 }
