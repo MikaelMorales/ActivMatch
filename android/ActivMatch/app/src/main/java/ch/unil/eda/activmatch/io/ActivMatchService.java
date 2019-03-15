@@ -25,4 +25,7 @@ public interface ActivMatchService {
     void createGroup(Group group);
 
     void sendMessage(Message message);
+
+    void quitGroup(String groupId);
+
 }

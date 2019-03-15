@@ -15,11 +15,12 @@ import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
 
-public class GroupDetailsActivity extends AppCompatActivity {
+public class GroupDetailsActivity extends ActivMatchActivity {
     public static final String GROUP_ID_KEY = "GROUP_ID_KEY";
 
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
+    private String groupId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +29,11 @@ public class GroupDetailsActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         // TODO: Set toolbar title with group name
         setSupportActionBar(toolbar);
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            groupId = bundle.getString(GROUP_ID_KEY);
+        }
 
         refreshLayout = findViewById(R.id.swipe_refresh_layout);
         recyclerView = new RecyclerView(getApplicationContext());
@@ -67,7 +73,7 @@ public class GroupDetailsActivity extends AppCompatActivity {
         ));
 
         adapter.setCellDefinerForType(99, new CellView<>(
-                ViewId.of(R.layout.spacer_cell)));
+                ViewId.of(R.layout.big_spacer_cell)));
 
         adapter.setViewTypeMapper(p -> p.first);
         recyclerView.setAdapter(adapter);
@@ -85,7 +91,8 @@ public class GroupDetailsActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_quit) {
-            // TODO: Handle exiting group
+            service.quitGroup(groupId);
+            finish();
             return true;
         }
 

@@ -15,8 +15,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.util.Collections;
+
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.ViewId;
+import ch.unil.eda.activmatch.io.ActivMatchStorage;
+import ch.unil.eda.activmatch.models.Group;
+import ch.unil.eda.activmatch.models.User;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
 import ch.unil.eda.activmatch.utils.ActivMatchRanges;
 import ch.unil.eda.activmatch.utils.AlertDialogUtils;
@@ -32,6 +37,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
     private TextInputEditText groupName;
 
     private MatchmoreSDK matchmore;
+    private ActivMatchStorage storage;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +48,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        storage = new ActivMatchStorage(this);
         matchmore = Matchmore.getInstance();
 
         rangeButton = findViewById(R.id.group_range);
@@ -72,8 +79,10 @@ public class CreateGroupActivity extends ActivMatchActivity {
             } else {
                 //matchmore.createPublication();
                 // TODO: ADD MATCHMORE AND GET GROUP ID AND SAVE SERVICE.CREATEGROUP();
-                AlertDialog alertDialog = AlertDialogUtils.createLoadingDialog(this);
-                alertDialog.show();
+               // AlertDialog alertDialog = AlertDialogUtils.createLoadingDialog(this);
+               // alertDialog.show();
+                service.createGroup(new Group("TEST", name.toString(), description.toString(), storage.getUser(), Collections.singletonList(storage.getUser())));
+                finish();
                 // When done we should call
                 // alertDialog.dismiss();
             }

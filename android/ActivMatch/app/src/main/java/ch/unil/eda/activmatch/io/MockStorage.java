@@ -84,6 +84,11 @@ public class MockStorage implements ActivMatchService {
         putGroup(group.getGroupId(), group);
     }
 
+    @Override
+    public void quitGroup(String groupId) {
+        deleteGroup(groupId);
+    }
+
     private List<String> getStringList(String key, List<String> ifNotFound) {
         int length = storage.getInt(key + "_length", -1);
         if (length == -1)
@@ -153,6 +158,19 @@ public class MockStorage implements ActivMatchService {
         return new Group(groupId, name, description, creator, Collections.singletonList(member));
     }
 
+
+    private void deleteGroup(String groupId) {
+        List<String> groupIds = getStringList(GROUPS_KEY, new ArrayList<>());
+        groupIds.remove(groupId);
+        putStringList(GROUPS_KEY, groupIds);
+
+        SharedPreferences.Editor editor = storage.edit();
+        editor.remove(GROUP_KEY + "_" + groupId + "_name");
+        editor.remove(GROUP_KEY + "_" + groupId + "_description");
+        removeUserFromGroup(editor, groupId);
+        editor.apply();
+    }
+
     private void putUser(SharedPreferences.Editor editor, String key, User user) {
         editor.putString(key + "_" + USER_KEY + "_name", user.getName());
         editor.putString(key + "_" + USER_KEY + "_id", user.getId());
@@ -164,5 +182,11 @@ public class MockStorage implements ActivMatchService {
         String name = storage.getString(key + "_" + USER_KEY + "_name", "");
         String id = storage.getString(key + "_" + USER_KEY + "_id", "");
         return new User(id, name, getStatus(id));
+    }
+
+    private void removeUserFromGroup(SharedPreferences.Editor editor, String groupId) {
+        editor.remove(GROUP_KEY + "_" + groupId + "_creator" + "_" + USER_KEY + "_name");
+        editor.remove(GROUP_KEY + "_" + groupId + "_creator" + "_" + USER_KEY + "_id");
+        editor.apply();
     }
 }

@@ -56,18 +56,25 @@ public class MainActivity extends ActivMatchActivity {
 
         GenericAdapter<Pair<Integer, GroupHeading>> adapter = new GenericAdapter<>(new CellView<>(
                 ViewId.of(R.layout.group_simple_card),
-                (item, view) -> {
-                    ((TextView) view).setText(item.second.getName());
-                    view.setOnClickListener(c -> {
-                        Intent intent = new Intent(this, GroupDetailsActivity.class);
-                        intent.putExtra(GroupDetailsActivity.GROUP_ID_KEY, item.second.getGroupId());
-                        startActivity(intent);
-                    });
-                }
+                new int[]{ R.id.group_name },
+                (id, item, view) -> {
+                    if (id == R.id.group_name) {
+                        ((TextView) view).setText(item.second.getName());
+                    }
+                },
+                (item, view) -> view.setOnClickListener(c -> {
+                    Intent intent = new Intent(this, GroupDetailsActivity.class);
+                    intent.putExtra(GroupDetailsActivity.GROUP_ID_KEY, item.second.getGroupId());
+                    startActivity(intent);
+                })
+        ));
+
+        adapter.setCellDefinerForType(97, new CellView<>(
+                ViewId.of(R.layout.small_spacer_cell)
         ));
 
         adapter.setCellDefinerForType(98, new CellView<>(
-                ViewId.of(R.layout.spacer_cell)
+                ViewId.of(R.layout.big_spacer_cell)
         ));
 
         adapter.setCellDefinerForType(99, new CellView<>(
@@ -119,6 +126,8 @@ public class MainActivity extends ActivMatchActivity {
         GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
 
         List<GroupHeading> groups = service.getGroups(userId);
+        //Small spacer
+        items.add(new Pair<>(97, null));
         if (groups.isEmpty()) {
             items.add(new Pair<>(99, createDummyGroupHeading(getString(R.string.no_group_result))));
         } else {
@@ -127,6 +136,7 @@ public class MainActivity extends ActivMatchActivity {
             }
         }
 
+        //Big spacer
         items.add(new Pair<>(98, null));
 
         adapter.setItems(items);
