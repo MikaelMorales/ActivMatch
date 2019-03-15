@@ -1,11 +1,9 @@
 package ch.unil.eda.activmatch.notifications;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import ch.unil.eda.activmatch.io.ActivMatchStorage;
 
 public class ActivMatchNotificationService extends FirebaseMessagingService {
 
@@ -22,12 +20,7 @@ public class ActivMatchNotificationService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String s) {
         super.onNewToken(s);
-
-        getSharedPreferences("FCM_TOKEN", MODE_PRIVATE).edit().putString("fcm", s).apply();
-    }
-
-    @Nullable
-    public static String getToken(@NonNull Context context) {
-        return context.getSharedPreferences("FCM_TOKEN", MODE_PRIVATE).getString("fcm", null);
+        ActivMatchStorage amStorage = new ActivMatchStorage(getApplicationContext());
+        amStorage.setFcmToken(s);
     }
 }
