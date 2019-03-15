@@ -14,6 +14,6 @@ public class ActivMatchActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        service = new Storage(getApplicationContext());
+        // service = new Storage(getApplicationContext());
     }
 }

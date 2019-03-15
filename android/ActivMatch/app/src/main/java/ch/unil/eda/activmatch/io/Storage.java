@@ -2,7 +2,7 @@ package ch.unil.eda.activmatch.io;
 
 import android.content.Context;
 
-public class Storage implements ActivMatchService {
+public abstract class Storage implements ActivMatchService {
 
     private Context mContext;
 
