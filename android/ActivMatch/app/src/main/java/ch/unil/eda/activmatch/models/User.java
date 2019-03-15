@@ -1,6 +1,8 @@
 package ch.unil.eda.activmatch.models;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     private String mId;
     private String mName;
     private UserStatus mStatus;
