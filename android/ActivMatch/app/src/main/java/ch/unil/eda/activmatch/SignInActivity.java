@@ -27,16 +27,17 @@ public class SignInActivity extends ActivMatchActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme_NoActionBar);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signin);
         findViewById(R.id.signin_layout).setVisibility(View.INVISIBLE);
+        findViewById(R.id.sign_in_button).setOnClickListener(this::onSignInClick);
 
         // Configuration of api key/world id
         if (!Matchmore.isConfigured()) {
             Matchmore.config(this, getString(R.string.matchmore_api_key), true);
         }
-
-        findViewById(R.id.sign_in_button).setOnClickListener(this::onSignInClick);
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
