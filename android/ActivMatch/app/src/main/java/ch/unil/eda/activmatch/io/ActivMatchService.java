@@ -20,7 +20,7 @@ public interface ActivMatchService {
 
     void setStatus(String userId, UserStatus status);
 
-    void joinGroup(User user, Group group);
+    void joinGroup(User user, GroupHeading group);
 
     void createGroup(Group group);
 

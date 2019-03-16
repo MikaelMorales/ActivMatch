@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".GroupChatActivity">
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,7 +31,8 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:padding="0dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
             app:cardBackgroundColor="@color/light_gray"
             app:contentPadding="6dp"
             app:cardElevation="2dp"
@@ -44,6 +45,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/transparent"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
                 android:maxLines="5"
                 android:maxLength="512"
                 android:hint="@string/message_hint"
@@ -63,6 +66,6 @@
             android:src="@drawable/ic_send"
             app:fabSize="mini"
             app:elevation="2dp"
-            app:backgroundTint="@color/gray"/>
+            app:backgroundTint="@color/colorAccent"/>
     </LinearLayout>
 </RelativeLayout>

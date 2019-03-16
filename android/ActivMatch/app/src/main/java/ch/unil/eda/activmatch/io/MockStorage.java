@@ -50,6 +50,7 @@ public class MockStorage implements ActivMatchService {
 
     @Override
     public void sendMessage(Message message) {
+        message.setMessageId(String.valueOf(System.identityHashCode(message)));
         putMessage(message);
     }
 
@@ -72,11 +73,10 @@ public class MockStorage implements ActivMatchService {
     }
 
     @Override
-    public void joinGroup(User user, Group group) {
+    public void joinGroup(User user, GroupHeading group) {
         //create group locally since offline
-        group.setCreator(user);
-        group.setMembers(Collections.singletonList(user));
-        createGroup(group);
+        createGroup(new Group(group.getGroupId(), group.getName(), group.getDescription(),
+                user, Collections.singletonList(user)));
     }
 
     @Override

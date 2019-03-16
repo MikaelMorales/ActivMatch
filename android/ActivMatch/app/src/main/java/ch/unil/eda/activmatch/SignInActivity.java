@@ -11,11 +11,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
-import ch.unil.eda.activmatch.io.ActivMatchStorage;
 import ch.unil.eda.activmatch.models.User;
 import ch.unil.eda.activmatch.models.UserStatus;
 import io.matchmore.sdk.Matchmore;
@@ -25,8 +23,7 @@ public class SignInActivity extends ActivMatchActivity {
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 1;
 
-    private GoogleSignInClient mGoogleSignInClient;
-    private ActivMatchStorage amStorage;
+    private GoogleSignInClient googleSignInClient;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,9 +45,7 @@ public class SignInActivity extends ActivMatchActivity {
                 .build();
 
         // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        amStorage = new ActivMatchStorage(this);
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
     @Override
@@ -91,7 +86,7 @@ public class SignInActivity extends ActivMatchActivity {
     }
 
     private void signIn() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
@@ -124,7 +119,7 @@ public class SignInActivity extends ActivMatchActivity {
 
     private void storeUserLocally(final GoogleSignInAccount a) {
         User u = accountToUser(a);
-        amStorage.setUser(u);
+        storage.setUser(u);
     }
 
     private User accountToUser(final GoogleSignInAccount a) {

@@ -5,7 +5,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.util.Pair;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,18 +20,17 @@ import java.util.List;
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
-import ch.unil.eda.activmatch.io.ActivMatchStorage;
 import ch.unil.eda.activmatch.models.GroupHeading;
 import ch.unil.eda.activmatch.models.UserStatus;
+import ch.unil.eda.activmatch.ui.AlertDialogUtils;
+import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
-import ch.unil.eda.activmatch.utils.AlertDialogUtils;
 import ch.unil.eda.activmatch.utils.Holder;
 
 public class MainActivity extends ActivMatchActivity {
 
-    private SwipeRefreshLayout refreshLayout;
+    private CustomSwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
-    private ActivMatchStorage storage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +38,6 @@ public class MainActivity extends ActivMatchActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        storage = new ActivMatchStorage(this);
 
         FloatingActionButton createGroup = findViewById(R.id.fab_create_group);
         createGroup.setOnClickListener(c -> {
@@ -65,6 +61,7 @@ public class MainActivity extends ActivMatchActivity {
                 (item, view) -> view.setOnClickListener(c -> {
                     Intent intent = new Intent(this, GroupDetailsActivity.class);
                     intent.putExtra(GroupDetailsActivity.GROUP_ID_KEY, item.second.getGroupId());
+                    intent.putExtra(GroupDetailsActivity.GROUP_NAME_KEY, item.second.getName());
                     startActivity(intent);
                 })
         ));

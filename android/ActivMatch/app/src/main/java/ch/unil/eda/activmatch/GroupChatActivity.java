@@ -1,122 +1,177 @@
 package ch.unil.eda.activmatch;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.util.Pair;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.jakewharton.rxbinding.widget.RxTextView;
-import com.jakewharton.rxbinding.widget.TextViewTextChangeEvent;
-
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
-import rx.Observer;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import ch.unil.eda.activmatch.models.Message;
+import ch.unil.eda.activmatch.models.User;
+import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
 
-public class GroupChatActivity extends AppCompatActivity {
+public class GroupChatActivity extends ActivMatchActivity {
+    public static final String GROUP_ID_KEY = "GROUP_ID_KEY";
+    public static final String GROUP_NAME_KEY = "GROUP_NAME_KEY";
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
 
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-    private SwipeRefreshLayout refreshLayout;
+    private CustomSwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
-    private Subscription searchBarSubscription = null;
-    private String message = null;
+
+    private String groupId;
+    private String groupName;
+
+    private EditText message;
+    private FloatingActionButton sendButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        // TODO: Set toolbar title with group name
-        getSupportActionBar().setTitle("");
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            groupId = bundle.getString(GROUP_ID_KEY);
+            groupName = bundle.getString(GROUP_NAME_KEY);
+        }
+        getSupportActionBar().setTitle(groupName);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         refreshLayout = findViewById(R.id.swipe_refresh_layout);
         recyclerView = new RecyclerView(getApplicationContext());
         refreshLayout.addView(recyclerView);
-        refreshLayout.setOnRefreshListener(() -> {}); // TODO
+        refreshLayout.setEnabled(false);
 
-        GenericAdapter<Pair<Integer, String>> adapter = new GenericAdapter<>(new CellView<>(
+        GenericAdapter<Pair<Integer, Message>> adapter = new GenericAdapter<>(new CellView<>(
                 ViewId.of(R.layout.chat_bubble_left),
-                new int[] {R.id.message_user_name, R.id.message_text, R.id.message_date},
+                new int[]{R.id.message_user_name, R.id.message_text, R.id.message_date},
                 (id, item, view) -> {
                     if (id == R.id.message_user_name) {
-                        ((TextView) view).setText("");
-                        // TODO: ((TextView) view).setTextColor(0);
+                        ((TextView) view).setText(item.second.getCreator().getName());
+                        ((TextView) view).setTextColor(getNameTint(item.second.getCreator().getName()));
                     } else if (id == R.id.message_text) {
-                        ((TextView) view).setText("");
+                        ((TextView) view).setText(item.second.getText());
                     } else if (id == R.id.message_date) {
-                        ((TextView) view).setText("");
+                        ((TextView) view).setText(item.second.getDate());
                     }
                 }
         ));
 
         adapter.setCellDefinerForType(1, new CellView<>(
                 ViewId.of(R.layout.chat_bubble_right),
-                new int[] {R.id.message_user_name, R.id.message_text, R.id.message_date},
+                new int[]{R.id.message_user_name, R.id.message_text, R.id.message_date},
                 (id, item, view) -> {
                     if (id == R.id.message_user_name) {
-                        ((TextView) view).setText("");
-                        // TODO: ((TextView) view).setTextColor(0);
+                        ((TextView) view).setText(item.second.getCreator().getName());
+                        ((TextView) view).setTextColor(getNameTint(item.second.getCreator().getName()));
                     } else if (id == R.id.message_text) {
-                        ((TextView) view).setText("");
+                        ((TextView) view).setText(item.second.getText());
                     } else if (id == R.id.message_date) {
-                        ((TextView) view).setText("");
+                        ((TextView) view).setText(item.second.getDate());
                     }
                 }
-        ));
-
-        adapter.setCellDefinerForType(98, new CellView<>(
-                ViewId.of(R.layout.simple_error_cell),
-                (item, view) -> ((TextView) view).setText(item.second)
         ));
 
         adapter.setViewTypeMapper(p -> p.first);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
-        FloatingActionButton sendButton = findViewById(R.id.send_button);
-        sendButton.setOnClickListener(c -> {
-            //TODO
-        });
+        sendButton = findViewById(R.id.send_button);
+        sendButton.setEnabled(false);
+        sendButton.setOnClickListener(c -> sendMessage());
 
-        EditText message = findViewById(R.id.message_text);
-        searchBarSubscription = RxTextView.textChangeEvents(message).
-                debounce(500, TimeUnit.MILLISECONDS).
-                observeOn(AndroidSchedulers.mainThread()).
-                subscribe(createSearchBarObserver(hasQuery -> {
-                    if (!hasQuery) {
-                        //TODO
-                    } else {
-                        //TODO
-                    }
-                }));
+        message = findViewById(R.id.message_text);
+        message.addTextChangedListener(new CustomTextWatcher());
     }
 
-    private Observer<TextViewTextChangeEvent> createSearchBarObserver(Consumer<Boolean> listener) {
-        return new Observer<TextViewTextChangeEvent>() {
-            @Override
-            public void onCompleted() {}
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getMessages();
 
-            @Override
-            public void onError(Throwable e) {
-                Log.e(e.getMessage(), "the search bar observer encountered an error");
+        Handler handler = new Handler();
+        int delay = 5000; // 10s
+        handler.postDelayed(new Runnable(){
+            public void run(){
+                pollForNewMessages();
+                handler.postDelayed(this, delay);
             }
-            @Override
-            public void onNext(TextViewTextChangeEvent onTextChangeEvent) {
-                message = onTextChangeEvent.text().toString();
-                listener.accept(message.length() > 0);
-            }
-        };
+        }, delay);
+    }
+
+    private void getMessages() {
+        refreshLayout.setRefreshing(true);
+        User user = storage.getUser();
+        List<Message> messages = service.getMessages(groupId);
+        List<Pair<Integer, Message>> items = new ArrayList<>();
+
+        for (Message message : messages) {
+            int cellType = message.getCreator().equals(user) ? 1 : 0;
+            items.add(new Pair<>(cellType, message));
+        }
+        GenericAdapter<Pair<Integer, Message>> adapter = (GenericAdapter<Pair<Integer, Message>>) recyclerView.getAdapter();
+        adapter.setItems(items);
+        adapter.notifyDataSetChanged();
+        recyclerView.scrollToPosition(items.size()-1);
+        refreshLayout.setRefreshing(false);
+    }
+
+    private void pollForNewMessages() {
+        GenericAdapter<Pair<Integer, Message>> adapter = (GenericAdapter<Pair<Integer, Message>>) recyclerView.getAdapter();
+        List<Message> messages = service.getMessages(groupId);
+        int currentLength = adapter.getItems().size();
+
+        for (int i=currentLength; i < messages.size(); i++)
+            adapter.onItemAdd(i, new Pair<>(0, messages.get(i)));
+    }
+
+    private void sendMessage() {
+        GenericAdapter<Pair<Integer, Message>> adapter = (GenericAdapter<Pair<Integer, Message>>) recyclerView.getAdapter();
+        int length = adapter.getItems().size();
+
+        String text = message.getText().toString();
+        User user = storage.getUser();
+        String date = dateFormat.format(new Date());
+        Message value = new Message("", groupId, date, text, user);
+        service.sendMessage(value);
+
+        adapter.onItemAdd(length, new Pair<>(1, value));
+        recyclerView.scrollToPosition(length);
+
+        message.setText("");
+    }
+
+    private static int getNameTint(String userName) {
+        int hashedColor = 0xFF000000;
+        if (userName != null)
+            hashedColor = userName.hashCode() | 0xFF808080;
+        return hashedColor;
+    }
+
+    private class CustomTextWatcher implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            sendButton.setEnabled(!s.toString().isEmpty());
+        }
     }
 }

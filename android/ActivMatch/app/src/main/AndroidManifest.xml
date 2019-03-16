@@ -52,6 +52,16 @@
             android:label="@string/activity_group_search_title"
             android:theme="@style/AppTheme"/>
 
+        <activity
+            android:name=".GroupResultActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme"/>
+
+        <activity
+            android:name=".JoinGroupActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme"/>
+
         <service android:name=".notifications.ActivMatchNotificationService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

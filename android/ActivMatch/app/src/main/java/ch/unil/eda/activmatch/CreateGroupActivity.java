@@ -19,12 +19,10 @@ import java.util.Collections;
 
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.ViewId;
-import ch.unil.eda.activmatch.io.ActivMatchStorage;
 import ch.unil.eda.activmatch.models.Group;
-import ch.unil.eda.activmatch.models.User;
+import ch.unil.eda.activmatch.ui.AlertDialogUtils;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
 import ch.unil.eda.activmatch.utils.ActivMatchRanges;
-import ch.unil.eda.activmatch.utils.AlertDialogUtils;
 import ch.unil.eda.activmatch.utils.Holder;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
@@ -37,7 +35,6 @@ public class CreateGroupActivity extends ActivMatchActivity {
     private TextInputEditText groupName;
 
     private MatchmoreSDK matchmore;
-    private ActivMatchStorage storage;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,7 +45,6 @@ public class CreateGroupActivity extends ActivMatchActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        storage = new ActivMatchStorage(this);
         matchmore = Matchmore.getInstance();
 
         rangeButton = findViewById(R.id.group_range);
@@ -87,8 +83,6 @@ public class CreateGroupActivity extends ActivMatchActivity {
                 // alertDialog.dismiss();
             }
             return true;
-        } else if (id == android.R.id.home) {
-            finish();
         }
 
         return super.onOptionsItemSelected(item);

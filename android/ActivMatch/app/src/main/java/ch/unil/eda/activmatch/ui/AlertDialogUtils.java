@@ -1,7 +1,6 @@
-package ch.unil.eda.activmatch.utils;
+package ch.unil.eda.activmatch.ui;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,7 +9,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import ch.unil.eda.activmatch.R;
 import ch.unil.eda.activmatch.adapter.CellView;
