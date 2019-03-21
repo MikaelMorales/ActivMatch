@@ -17,7 +17,6 @@ import com.google.android.gms.tasks.Task;
 import ch.unil.eda.activmatch.models.User;
 import ch.unil.eda.activmatch.models.UserStatus;
 import io.matchmore.sdk.Matchmore;
-import io.matchmore.sdk.api.models.MobileDevice;
 
 public class SignInActivity extends ActivMatchActivity {
 

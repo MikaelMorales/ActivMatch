@@ -132,6 +132,10 @@ public class MainActivity extends ActivMatchActivity {
         if (id == R.id.action_status) {
             toggleStatusView();
             return true;
+        } else if (id == R.id.action_matches) {
+            Intent intent = new Intent(this, GroupResultActivity.class);
+            startActivity(intent);
+            return true;
         } else if (id == R.id.action_search) {
             Intent intent = new Intent(this, SearchActivity.class);
             startActivity(intent);
