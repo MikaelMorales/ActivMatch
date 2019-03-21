@@ -84,6 +84,7 @@ public class SearchActivity extends ActivMatchActivity {
 
             matchmore.createSubscriptionForMainDevice(subscription, createdSubscription -> {
                 alertDialog.dismiss();
+                finish();
                 return Unit.INSTANCE;
             }, e -> {
                 alertDialog.dismiss();
@@ -103,7 +104,5 @@ public class SearchActivity extends ActivMatchActivity {
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             matchmore.startUpdatingLocation();
         }
-
-        finish();
     }
 }

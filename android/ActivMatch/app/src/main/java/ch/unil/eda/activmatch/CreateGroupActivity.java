@@ -39,8 +39,6 @@ public class CreateGroupActivity extends ActivMatchActivity {
     private TextInputEditText groupDescription;
     private TextInputEditText groupName;
 
-    private String publicationId;
-
     private MatchmoreSDK matchmore;
 
     @Override
@@ -83,7 +81,6 @@ public class CreateGroupActivity extends ActivMatchActivity {
                 Group group = new Group("", name.toString(), description.toString(), storage.getUser(), Collections.singletonList(storage.getUser()));
                 publishTopic(group, range);
                 service.createGroup(group);
-                finish();
             }
             return true;
         }
@@ -150,6 +147,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
             matchmore.createPublicationForMainDevice(publication, createdPublication -> {
                 group.setGroupId(createdPublication.getId());
                 alertDialog.dismiss();
+                finish();
                 return Unit.INSTANCE;
             }, e -> {
                 alertDialog.dismiss();
