@@ -91,9 +91,9 @@ public class SearchActivity extends ActivMatchActivity {
         AlertDialog alertDialog = AlertDialogUtils.createLoadingDialog(this);
         alertDialog.show();
 
-        matchmore.startUsingMainDevice(device1 -> {
+        matchmore.startUsingMainDevice(matchmore.getMain(), d -> {
             Subscription subscription = new Subscription("ActivMatch", RANGE, DURATION);
-            subscription.setSelector("name LIKE '%" + topicName.toLowerCase()+"%'");
+            subscription.setSelector("name LIKE '" + topicName.toLowerCase()+"'");
             subscription.setPushers(Collections.singletonList("fcm://" + FCMToken));
 
             matchmore.createSubscriptionForMainDevice(subscription, createdSubscription -> {
@@ -112,7 +112,5 @@ public class SearchActivity extends ActivMatchActivity {
             showErrorRetrySnackBar(() -> subscribeToTopic(FCMToken, topicName));
             return Unit.INSTANCE;
         });
-
-        matchmore.getMatchMonitor().startPollingMatches();
     }
 }

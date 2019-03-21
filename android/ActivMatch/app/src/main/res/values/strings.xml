@@ -51,5 +51,6 @@
 
     <!-- Group result activity -->
     <string name="no_matches_found">No matches were found.</string>
+    <string name="group_result_activity_title">Your matches</string>
 
 </resources>

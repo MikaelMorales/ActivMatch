@@ -35,7 +35,6 @@ public class GroupDetailsActivity extends ActivMatchActivity {
     public static final String GROUP_ID_KEY = "GROUP_ID_KEY";
     public static final String GROUP_NAME_KEY = "GROUP_NAME_KEY";
 
-    private FloatingActionButton chatButton;
     private CustomSwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
 
@@ -63,7 +62,7 @@ public class GroupDetailsActivity extends ActivMatchActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        chatButton = findViewById(R.id.fab_chat);
+        FloatingActionButton chatButton = findViewById(R.id.fab_chat);
         chatButton.setOnClickListener(c -> {
             Intent intent = new Intent(this, GroupChatActivity.class);
             intent.putExtra(GroupChatActivity.GROUP_ID_KEY, groupId);
@@ -117,7 +116,6 @@ public class GroupDetailsActivity extends ActivMatchActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        recyclerView.setAdapter(null);
         recyclerView.removeAllViews();
     }
 
@@ -146,14 +144,23 @@ public class GroupDetailsActivity extends ActivMatchActivity {
         if (id == R.id.action_quit) {
             if (group != null && group.getCreator().equals(storage.getUser())) {
                 refreshLayout.setRefreshing(true);
-                matchmore.startUsingMainDevice(device -> {
+                matchmore.startUsingMainDevice(matchmore.getMain(), device -> {
                     CRD<Publication> publications = matchmore.getPublications();
-                    publications.delete(publications.find(groupId), () -> {
+                    Publication p = publications.find(groupId);
+                    if (p != null) {
+                        publications.delete(p, () -> {
+                            service.quitGroup(groupId);
+                            storage.removeGroupId(groupId);
+                            refreshLayout.setRefreshing(false);
+                            finish();
+                            return Unit.INSTANCE;
+                        }, null);
+                    } else {
                         service.quitGroup(groupId);
+                        storage.removeGroupId(groupId);
                         refreshLayout.setRefreshing(false);
                         finish();
-                        return Unit.INSTANCE;
-                    }, null);
+                    }
                     return Unit.INSTANCE;
                 }, e -> {
                     Log.e("GroupDetailActivity", e.getMessage());

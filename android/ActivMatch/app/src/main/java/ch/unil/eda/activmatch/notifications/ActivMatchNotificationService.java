@@ -23,7 +23,12 @@ import ch.unil.eda.activmatch.R;
 import ch.unil.eda.activmatch.io.ActivMatchService;
 import ch.unil.eda.activmatch.io.ActivMatchStorage;
 import ch.unil.eda.activmatch.io.MockStorage;
+import io.matchmore.sdk.AlpsManager;
 import io.matchmore.sdk.Matchmore;
+import io.matchmore.sdk.MatchmoreConfig;
+import io.matchmore.sdk.MatchmoreSDK;
+import io.matchmore.sdk.api.MatchesApi;
+import io.matchmore.sdk.api.models.MatchesKt;
 import io.matchmore.sdk.api.models.MobileDevice;
 
 public class ActivMatchNotificationService extends FirebaseMessagingService {
@@ -73,8 +78,13 @@ public class ActivMatchNotificationService extends FirebaseMessagingService {
         storage.setFcmToken(s);
 
         // Set default device for Matchmore
-        MobileDevice device = new MobileDevice(storage.getUser().getId(), "Android", storage.getFcmToken(), null);
-        Matchmore.getInstance().startUsingMainDevice(device, null, null);
+        if (Matchmore.isConfigured()) {
+            MobileDevice device = new MobileDevice(storage.getUser().getId(), "Android", "fcm://"+storage.getFcmToken(), null);
+            Matchmore.getInstance().startUsingMainDevice(device, null, null);
+            ((AlpsManager) Matchmore.getInstance()).registerDeviceToken("fcm://"+storage.getFcmToken());
+        }
+
+        Matchmore.getInstance().getMatchMonitor().onReceiveMatchUpdate();
 
         ActivMatchService service = new MockStorage(getApplicationContext());
         service.updateUserToken(storage.getUser().getId(), s);

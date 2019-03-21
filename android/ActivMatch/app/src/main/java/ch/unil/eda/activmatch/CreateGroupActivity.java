@@ -142,7 +142,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
         properties.put("range", String.valueOf(range));
         properties.put("description", group.getDescription());
 
-        matchmore.startUsingMainDevice(device -> {
+        matchmore.startUsingMainDevice(matchmore.getMain(), device -> {
             Publication publication = new Publication("ActivMatch", range.doubleValue(), 3.154 * Math.pow(10, 7));
             publication.setProperties(properties);
 

@@ -63,6 +63,12 @@ public class ActivMatchStorage {
         putStringList(STORAGE_GROUPS_ID, ids);
     }
 
+    public void removeGroupId(String groupId) {
+        List<String> ids = getStringList(STORAGE_GROUPS_ID, new ArrayList<>());
+        ids.remove(groupId);
+        putStringList(STORAGE_GROUPS_ID, ids);
+    }
+
     private List<String> getStringList(String key, List<String> ifNotFound) {
         int length = storage.getInt(key + "_length", -1);
         if (length == -1)
