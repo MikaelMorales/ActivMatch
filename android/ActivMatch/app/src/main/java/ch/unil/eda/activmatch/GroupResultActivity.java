@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
@@ -18,6 +19,8 @@ import ch.unil.eda.activmatch.models.GroupHeading;
 import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
+import io.matchmore.sdk.api.models.PublicationWithLocation;
+import kotlin.Unit;
 
 public class GroupResultActivity extends ActivMatchActivity {
 
@@ -74,6 +77,7 @@ public class GroupResultActivity extends ActivMatchActivity {
         super.onDestroy();
         recyclerView.setAdapter(null);
         recyclerView.removeAllViews();
+        matchmore.getMatchMonitor().stopPollingMatches();
     }
 
     @Override
@@ -92,13 +96,23 @@ public class GroupResultActivity extends ActivMatchActivity {
         List<Pair<Integer, GroupHeading>> items = new ArrayList<>();
         refreshLayout.setRefreshing(true);
 
-        items.add(new Pair<>(97, null));
-        // Get result from matchmore and display them
+        matchmore.getMatchMonitor().addOnMatchListener((matches, device) -> {
+            items.add(new Pair<>(97, null));
+            if (matches.isEmpty()) {
+                items.add(new Pair<>(99, new GroupHeading(null, getString(R.string.no_group_result), null)));
+            } else {
+               items.addAll(matches.stream().map(m -> {
+                   PublicationWithLocation p = m.getPublication();
+                   return new Pair<>(0, new GroupHeading(p.getId(), (String) p.getProperties().get("name"), (String) p.getProperties().get("description")));
+               }).collect(Collectors.toList()));
+            }
+            GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
+            adapter.setItems(items);
+            adapter.notifyDataSetChanged();
+            refreshLayout.setRefreshing(false);
+            return Unit.INSTANCE;
+        });
 
-
-        GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
-        adapter.setItems(items);
-        adapter.notifyDataSetChanged();
-        refreshLayout.setRefreshing(false);
+        matchmore.getMatchMonitor().startPollingMatches();
     }
 }

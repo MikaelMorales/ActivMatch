@@ -9,6 +9,7 @@ import android.support.v4.widget.ImageViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -24,6 +25,11 @@ import ch.unil.eda.activmatch.models.Group;
 import ch.unil.eda.activmatch.models.User;
 import ch.unil.eda.activmatch.models.UserStatus;
 import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
+import io.matchmore.sdk.Matchmore;
+import io.matchmore.sdk.MatchmoreSDK;
+import io.matchmore.sdk.api.models.Publication;
+import io.matchmore.sdk.store.CRD;
+import kotlin.Unit;
 
 public class GroupDetailsActivity extends ActivMatchActivity {
     public static final String GROUP_ID_KEY = "GROUP_ID_KEY";
@@ -32,13 +38,20 @@ public class GroupDetailsActivity extends ActivMatchActivity {
     private FloatingActionButton chatButton;
     private CustomSwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
+
+    private MatchmoreSDK matchmore;
+
     private String groupId;
     private String groupName;
+
+    private Group group;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_details);
+
+        matchmore = Matchmore.getInstance();
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -131,8 +144,25 @@ public class GroupDetailsActivity extends ActivMatchActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_quit) {
-            service.quitGroup(groupId);
-            finish();
+            if (group != null && group.getCreator().equals(storage.getUser())) {
+                refreshLayout.setRefreshing(true);
+                matchmore.startUsingMainDevice(device -> {
+                    CRD<Publication> publications = matchmore.getPublications();
+                    publications.delete(publications.find(groupId), () -> {
+                        service.quitGroup(groupId);
+                        refreshLayout.setRefreshing(false);
+                        finish();
+                        return Unit.INSTANCE;
+                    }, null);
+                    return Unit.INSTANCE;
+                }, e -> {
+                    Log.e("GroupDetailActivity", e.getMessage());
+                    return Unit.INSTANCE;
+                });
+            } else {
+                service.quitGroup(groupId);
+                finish();
+            }
             return true;
         }
 
@@ -142,7 +172,7 @@ public class GroupDetailsActivity extends ActivMatchActivity {
     private void updateDisplay() {
         refreshLayout.setRefreshing(true);
 
-        Group group = service.getGroup(groupId);
+        group = service.getGroup(groupId);
         List<Pair<Integer, GroupWrapper>> items = new ArrayList<>();
         items.add(new Pair<>(0, new GroupWrapper(getString(R.string.group_name_header), null, null)));
         items.add(new Pair<>(1, new GroupWrapper(group.getName(), null, null)));

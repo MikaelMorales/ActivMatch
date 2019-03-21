@@ -2,17 +2,21 @@ package ch.unil.eda.activmatch;
 
 import android.os.Bundle;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
 import ch.unil.eda.activmatch.models.GroupHeading;
+import ch.unil.eda.activmatch.ui.AlertDialogUtils;
 import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
 
 public class JoinGroupActivity extends ActivMatchActivity {
@@ -83,7 +87,10 @@ public class JoinGroupActivity extends ActivMatchActivity {
         items.add(new Pair<>(1, groupName));
         items.add(new Pair<>(0, getString(R.string.group_description_header)));
         items.add(new Pair<>(1, groupDescription));
-        items.add(new Pair<>(3, null));
+        Set<String> groups = service.getGroups(storage.getUser().getId()).stream().map(GroupHeading::getGroupId).collect(Collectors.toSet());
+        if (!groups.contains(groupId)) {
+            items.add(new Pair<>(3, null));
+        }
 
         GenericAdapter<Pair<Integer, String>> adapter = (GenericAdapter<Pair<Integer, String>>) recyclerView.getAdapter();
         adapter.setItems(items);
@@ -91,10 +98,11 @@ public class JoinGroupActivity extends ActivMatchActivity {
     }
 
     private void onJoinClick() {
-        // TODO
+        AlertDialog loading = AlertDialogUtils.createLoadingDialog(getApplication());
+        loading.show();
         service.joinGroup(storage.getUser(), new GroupHeading(groupId, groupName, groupDescription));
-        // AlertDialog alertDialog = AlertDialogUtils.createLoadingDialog(this);
-        // alertDialog.show();
+        storage.addGroupId(groupId);
+        loading.dismiss();
         finish();
     }
 }

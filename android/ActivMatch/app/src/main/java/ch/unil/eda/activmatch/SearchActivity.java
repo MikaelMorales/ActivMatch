@@ -3,11 +3,11 @@ package ch.unil.eda.activmatch;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.button.MaterialButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -19,6 +19,7 @@ import ch.unil.eda.activmatch.ui.AlertDialogUtils;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
+import io.matchmore.sdk.api.models.MobileDevice;
 import io.matchmore.sdk.api.models.Subscription;
 import kotlin.Unit;
 
@@ -45,6 +46,19 @@ public class SearchActivity extends ActivMatchActivity {
         ActivMatchPermissions.requestLocationPermission(this);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == ActivMatchPermissions.LOCATION_PERMISSION_CODE) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                finish();
+            } else {
+                matchmore.startUpdatingLocation();
+                matchmore.startRanging();
+            }
+        }
+    }
+
     private void onSubscribeClick() {
         Editable topic = searchField.getText();
         if (topic == null || topic.toString().isEmpty()) {
@@ -60,6 +74,7 @@ public class SearchActivity extends ActivMatchActivity {
                             }
                             // Get new Instance ID token
                             String token = task.getResult().getToken();
+                            storage.setFcmToken(token);
                             subscribeToTopic(token, topic.toString());
                         });
             } else {
@@ -68,8 +83,7 @@ public class SearchActivity extends ActivMatchActivity {
         }
     }
 
-    private void subscribeToTopic(String fcmToken, String topicName) {
-        ActivMatchPermissions.requestLocationPermission(this);
+    private void subscribeToTopic(String FCMToken, String topicName) {
         if (!ActivMatchPermissions.hasLocationPermission(this)) {
             Toast.makeText(getApplicationContext(), getString(R.string.error_location), Toast.LENGTH_LONG).show();
             return;
@@ -78,10 +92,10 @@ public class SearchActivity extends ActivMatchActivity {
         AlertDialog alertDialog = AlertDialogUtils.createLoadingDialog(this);
         alertDialog.show();
 
-        matchmore.startUsingMainDevice(device -> {
+        matchmore.startUsingMainDevice(device1 -> {
             Subscription subscription = new Subscription("ActivMatch", RANGE, DURATION);
             subscription.setSelector("name LIKE '%" + topicName.toLowerCase()+"%'");
-            subscription.setPushers(Collections.singletonList("fcm://" + fcmToken));
+            subscription.setPushers(Collections.singletonList("fcm://" + FCMToken));
 
             matchmore.createSubscriptionForMainDevice(subscription, createdSubscription -> {
                 alertDialog.dismiss();
@@ -89,21 +103,17 @@ public class SearchActivity extends ActivMatchActivity {
                 return Unit.INSTANCE;
             }, e -> {
                 alertDialog.dismiss();
-                showErrorRetrySnackBar(() -> subscribeToTopic(fcmToken, topicName));
+                showErrorRetrySnackBar(() -> subscribeToTopic(FCMToken, topicName));
                 return Unit.INSTANCE;
             });
 
             return Unit.INSTANCE;
         }, e -> {
             alertDialog.dismiss();
-            showErrorRetrySnackBar(() -> subscribeToTopic(fcmToken, topicName));
+            showErrorRetrySnackBar(() -> subscribeToTopic(FCMToken, topicName));
             return Unit.INSTANCE;
         });
 
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            matchmore.startUpdatingLocation();
-        }
+        matchmore.getMatchMonitor().startPollingMatches();
     }
 }

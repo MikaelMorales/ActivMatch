@@ -1,6 +1,9 @@
 <resources>
-    <string name="matchmore_api_key">eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhbHBzIiwic3ViIjoiMmUwZWViYTgtOTc1MC00ODFmLTkwMjAtMjNkYzFlNGI1MDhlIiwiYXVkIjpbIlB1YmxpYyJdLCJuYmYiOjE1NTI0ODQ5NTgsImlhdCI6MTU1MjQ4NDk1OCwianRpIjoiMSJ9.zJxDz2xmCeRqvoRTjRDbF-b-EyJlx0xHZarJqj34_adJAnZF-o-XaLCz4Rtl2B1uveBaEW6WgZ6V2aBAsLaYyQ</string>
+    <string name="matchmore_api_key">eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhbHBzIiwic3ViIjoiYzlkODQ4NjItYWIxMi00MTdmLTg4NTMtMjg0N2U4ZWUyODc4IiwiYXVkIjpbIlB1YmxpYyJdLCJuYmYiOjE1NTMxNzg0NzcsImlhdCI6MTU1MzE3ODQ3NywianRpIjoiMSJ9.uWdTsKe9lTrlYMYKXaLXXa1z8jgviYSvBfQghRVP5-u5lmDKx5kXqw-tImhQHuozbxISKmPEhA-4byzQ4yy35g</string>
     <string name="app_name">ActivMatch</string>
+    <string name="notifications_matches">New groups were found !</string>
+
+    <!-- IO Strings -->
     <string name="sending">Sending…</string>
     <string name="sdk_retry">Retry</string>
     <string name="error">An error happened</string>

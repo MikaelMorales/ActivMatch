@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "671789812353-jbff3hi1hmtgudbafdjf92jbuuiu19k7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ch.unil.eda.activmatch",
+            "certificate_hash": "f6012c27fa139e0107885fe9e232741735713bf6"
+          }
+        },
+        {
           "client_id": "671789812353-gssu5f54dedl3i7vtanrqnjadh29s7sg.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -40,7 +48,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "671789812353-gssu5f54dedl3i7vtanrqnjadh29s7sg.apps.googleusercontent.com",
+              "client_id": "671789812353-1r026b8uah36en3rh6ceb1lnheoorc0p.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

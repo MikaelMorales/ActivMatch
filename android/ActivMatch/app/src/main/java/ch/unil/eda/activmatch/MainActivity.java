@@ -1,9 +1,13 @@
 package ch.unil.eda.activmatch;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,6 +30,9 @@ import ch.unil.eda.activmatch.ui.AlertDialogUtils;
 import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
 import ch.unil.eda.activmatch.utils.Holder;
+import io.matchmore.sdk.Matchmore;
+import io.matchmore.sdk.MatchmoreSDK;
+import io.matchmore.sdk.api.models.MobileDevice;
 
 public class MainActivity extends ActivMatchActivity {
 
@@ -38,6 +45,12 @@ public class MainActivity extends ActivMatchActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Set MainDevice for matchmore if possible
+        if (storage.getFcmToken() != null) {
+            MobileDevice device = new MobileDevice(storage.getUser().getId(), "Android", storage.getFcmToken(), null);
+            Matchmore.getInstance().startUsingMainDevice(device, null, null);
+        }
 
         FloatingActionButton createGroup = findViewById(R.id.fab_create_group);
         createGroup.setOnClickListener(c -> {
@@ -52,7 +65,7 @@ public class MainActivity extends ActivMatchActivity {
 
         GenericAdapter<Pair<Integer, GroupHeading>> adapter = new GenericAdapter<>(new CellView<>(
                 ViewId.of(R.layout.group_simple_card),
-                new int[]{ R.id.group_name },
+                new int[]{R.id.group_name},
                 (id, item, view) -> {
                     if (id == R.id.group_name) {
                         ((TextView) view).setText(item.second.getName());
@@ -126,6 +139,20 @@ public class MainActivity extends ActivMatchActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == ActivMatchPermissions.LOCATION_PERMISSION_CODE) {
+            MatchmoreSDK matchmore = Matchmore.getInstance();
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                matchmore.startUpdatingLocation();
+                matchmore.startRanging();
+            }
+        }
     }
 
     private void updateDisplay() {

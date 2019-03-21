@@ -3,6 +3,9 @@ package ch.unil.eda.activmatch.io;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.unil.eda.activmatch.models.User;
 import ch.unil.eda.activmatch.models.UserStatus;
 
@@ -16,6 +19,7 @@ public class ActivMatchStorage {
     public static final String STORAGE_USER_ID = "STORAGE_USER_ID";
     public static final String STORAGE_USER_NAME = "STORAGE_USER_NAME";
     public static final String STORAGE_USER_STATUS = "STORAGE_USER_STATUS";
+    public static final String STORAGE_GROUPS_ID = "STORAGE_GROUPS_ID";
     public static final String FCM_TOKEN = "FCM_TOKEN";
 
     private SharedPreferences storage;
@@ -47,5 +51,39 @@ public class ActivMatchStorage {
 
     public String getFcmToken() {
         return storage.getString(FCM_TOKEN, "");
+    }
+
+    public List<String> getGroupsId() {
+        return getStringList(STORAGE_GROUPS_ID, new ArrayList<>());
+    }
+
+    public void addGroupId(String groupId) {
+        List<String> ids = getStringList(STORAGE_GROUPS_ID, new ArrayList<>());
+        ids.add(groupId);
+        putStringList(STORAGE_GROUPS_ID, ids);
+    }
+
+    private List<String> getStringList(String key, List<String> ifNotFound) {
+        int length = storage.getInt(key + "_length", -1);
+        if (length == -1)
+            return ifNotFound;
+        ifNotFound = new ArrayList<>();
+        for (int i = 0; i < length; i++) {
+            ifNotFound.add(storage.getString(key + "_" + i, null));
+        }
+        return ifNotFound;
+    }
+
+    private void putStringList(String key, List<String> stringList) {
+        SharedPreferences.Editor editor = storage.edit();
+        int length = stringList == null ? -1 : stringList.size();
+        editor.putInt(key + "_length", length);
+        if (length > 0) {
+            int i = 0;
+            for (String s : stringList) {
+                editor.putString(key + "_" + i++, s);
+            }
+        }
+        editor.apply();
     }
 }

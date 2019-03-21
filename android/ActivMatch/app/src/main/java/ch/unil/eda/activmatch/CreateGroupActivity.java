@@ -82,7 +82,6 @@ public class CreateGroupActivity extends ActivMatchActivity {
             } else {
                 Group group = new Group("", name.toString(), description.toString(), storage.getUser(), Collections.singletonList(storage.getUser()));
                 publishTopic(group, range);
-                service.createGroup(group);
             }
             return true;
         }
@@ -98,6 +97,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
                 finish();
             } else {
                 matchmore.startUpdatingLocation();
+                matchmore.startRanging();
             }
         }
     }
@@ -147,8 +147,10 @@ public class CreateGroupActivity extends ActivMatchActivity {
             publication.setProperties(properties);
 
             matchmore.createPublicationForMainDevice(publication, createdPublication -> {
-                group.setGroupId(createdPublication.getId());
                 alertDialog.dismiss();
+                group.setGroupId(createdPublication.getId());
+                service.createGroup(group);
+                storage.addGroupId(group.getGroupId());
                 finish();
                 return Unit.INSTANCE;
             }, e -> {
@@ -165,11 +167,5 @@ public class CreateGroupActivity extends ActivMatchActivity {
             showErrorRetrySnackBar(() -> publishTopic(group, range));
             return Unit.INSTANCE;
         });
-
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            matchmore.startUpdatingLocation();
-        }
     }
 }
