@@ -7,6 +7,7 @@ import android.support.design.button.MaterialButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -84,6 +85,7 @@ public class SearchActivity extends ActivMatchActivity {
 
             matchmore.createSubscriptionForMainDevice(subscription, createdSubscription -> {
                 alertDialog.dismiss();
+                Log.d("SearchActivity", "Activity should close");
                 finish();
                 return Unit.INSTANCE;
             }, e -> {

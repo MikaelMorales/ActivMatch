@@ -11,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -33,6 +34,7 @@ import io.matchmore.sdk.api.models.Publication;
 import kotlin.Unit;
 
 public class CreateGroupActivity extends ActivMatchActivity {
+    private final static String TAG = "CreateGroupActivity";
 
     private Integer range = null;
     private MaterialButton rangeButton;
@@ -141,7 +143,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
         properties.put("description", group.getDescription());
 
         matchmore.startUsingMainDevice(device -> {
-            Publication publication = new Publication("ActivMatch", range.doubleValue(), Double.MAX_VALUE);
+            Publication publication = new Publication("ActivMatch", range.doubleValue(), 3.154 * Math.pow(10, 7));
             publication.setProperties(properties);
 
             matchmore.createPublicationForMainDevice(publication, createdPublication -> {
@@ -151,6 +153,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
                 return Unit.INSTANCE;
             }, e -> {
                 alertDialog.dismiss();
+                Log.e(TAG, e.getMessage());
                 showErrorRetrySnackBar(() -> publishTopic(group, range));
                 return Unit.INSTANCE;
             });
@@ -158,6 +161,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
             return Unit.INSTANCE;
         }, e -> {
             alertDialog.dismiss();
+            Log.e(TAG, e.getMessage());
             showErrorRetrySnackBar(() -> publishTopic(group, range));
             return Unit.INSTANCE;
         });
