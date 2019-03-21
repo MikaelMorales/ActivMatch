@@ -70,6 +70,13 @@ public class JoinGroupActivity extends ActivMatchActivity {
         updateDisplay();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        recyclerView.setAdapter(null);
+        recyclerView.removeAllViews();
+    }
+
     private void updateDisplay() {
         List<Pair<Integer, String>> items = new ArrayList<>();
         items.add(new Pair<>(0, getString(R.string.group_name_header)));

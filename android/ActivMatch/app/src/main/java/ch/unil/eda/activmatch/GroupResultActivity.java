@@ -70,6 +70,19 @@ public class GroupResultActivity extends ActivMatchActivity {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        recyclerView.setAdapter(null);
+        recyclerView.removeAllViews();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        refreshLayout.setRefreshing(false);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         updateDisplay();

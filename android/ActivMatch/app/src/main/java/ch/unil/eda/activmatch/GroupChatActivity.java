@@ -38,6 +38,9 @@ public class GroupChatActivity extends ActivMatchActivity {
     private EditText message;
     private FloatingActionButton sendButton;
 
+    private Handler handler = new Handler();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,11 +102,25 @@ public class GroupChatActivity extends ActivMatchActivity {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        recyclerView.setAdapter(null);
+        recyclerView.removeAllViews();
+        handler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        refreshLayout.setRefreshing(false);
+        handler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         getMessages();
 
-        Handler handler = new Handler();
         int delay = 5000; // 10s
         handler.postDelayed(new Runnable(){
             public void run(){

@@ -102,6 +102,19 @@ public class GroupDetailsActivity extends ActivMatchActivity {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        recyclerView.setAdapter(null);
+        recyclerView.removeAllViews();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        refreshLayout.setRefreshing(false);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         updateDisplay();
@@ -136,6 +149,7 @@ public class GroupDetailsActivity extends ActivMatchActivity {
         items.add(new Pair<>(0, new GroupWrapper(getString(R.string.group_description_header), null, null)));
         items.add(new Pair<>(2, new GroupWrapper(null, group.getDescription(), null)));
         items.add(new Pair<>(0, new GroupWrapper(getString(R.string.group_members_header), null, null)));
+
         for (User user : group.getMembers()) {
             items.add(new Pair<>(3, new GroupWrapper(null, null, user)));
         }
