@@ -80,12 +80,11 @@ public class SearchActivity extends ActivMatchActivity {
 
         matchmore.startUsingMainDevice(device -> {
             Subscription subscription = new Subscription("ActivMatch", RANGE, DURATION);
-            subscription.setSelector("name LIKE %" + topicName.toLowerCase() + "%");
+            subscription.setSelector("name LIKE '%" + topicName.toLowerCase()+"%'");
             subscription.setPushers(Collections.singletonList("fcm://" + fcmToken));
 
             matchmore.createSubscriptionForMainDevice(subscription, createdSubscription -> {
                 alertDialog.dismiss();
-                Log.d("SearchActivity", "Activity should close");
                 finish();
                 return Unit.INSTANCE;
             }, e -> {
