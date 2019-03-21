@@ -19,7 +19,6 @@ import ch.unil.eda.activmatch.ui.AlertDialogUtils;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
-import io.matchmore.sdk.api.models.MobileDevice;
 import io.matchmore.sdk.api.models.Subscription;
 import kotlin.Unit;
 

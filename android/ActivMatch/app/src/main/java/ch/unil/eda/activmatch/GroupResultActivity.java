@@ -99,7 +99,7 @@ public class GroupResultActivity extends ActivMatchActivity {
         matchmore.getMatchMonitor().addOnMatchListener((matches, device) -> {
             items.add(new Pair<>(97, null));
             if (matches.isEmpty()) {
-                items.add(new Pair<>(99, new GroupHeading(null, getString(R.string.no_group_result), null)));
+                items.add(new Pair<>(99, new GroupHeading(null, getString(R.string.no_matches_found), null)));
             } else {
                items.addAll(matches.stream().map(m -> {
                    PublicationWithLocation p = m.getPublication();

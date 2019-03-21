@@ -12,6 +12,7 @@
     <!-- Main activity menu -->
     <string name="action_search">Search for groups</string>
     <string name="action_status">Change your status</string>
+    <string name="action_matches">See your matches</string>
 
     <!-- Group details activity menu -->
     <string name="action_quit">Quit the group</string>
@@ -32,7 +33,6 @@
     <string name="join_group_search_title">Groups nearby</string>
     <string name="join_group">Join this group</string>
 
-
     <!-- Create group activity -->
     <string name="activity_create_group_title">Create a group</string>
     <string name="group_name_header">Name</string>
@@ -48,4 +48,8 @@
 
     <!-- Group Chat activity -->
     <string name="message_hint">Enter a message</string>
+
+    <!-- Group result activity -->
+    <string name="no_matches_found">No matches were found.</string>
+
 </resources>

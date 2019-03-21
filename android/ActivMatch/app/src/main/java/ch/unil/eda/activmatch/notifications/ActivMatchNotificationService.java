@@ -60,6 +60,7 @@ public class ActivMatchNotificationService extends FirebaseMessagingService {
         notificationManager.notify("ActivMatch", myNotificationId, notificationBuilder.build());
     }
 
+
     @Override
     public void onDeletedMessages() {
         super.onDeletedMessages();
