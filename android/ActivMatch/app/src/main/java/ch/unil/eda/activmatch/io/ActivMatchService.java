@@ -28,4 +28,6 @@ public interface ActivMatchService {
 
     void quitGroup(String groupId);
 
+    void updateUserToken(String userId, String userToken);
+
 }

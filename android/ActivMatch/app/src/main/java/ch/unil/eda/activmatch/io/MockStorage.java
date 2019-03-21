@@ -55,6 +55,10 @@ public class MockStorage implements ActivMatchService {
     }
 
     @Override
+    public void updateUserToken(String userId, String userToken) {
+    }
+
+    @Override
     public Group getGroup(String groupId) {
         return getGroupById(groupId);
     }

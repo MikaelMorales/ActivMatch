@@ -14,8 +14,11 @@ import android.text.Editable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.ViewId;
@@ -26,6 +29,8 @@ import ch.unil.eda.activmatch.utils.ActivMatchRanges;
 import ch.unil.eda.activmatch.utils.Holder;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
+import io.matchmore.sdk.api.models.Publication;
+import kotlin.Unit;
 
 public class CreateGroupActivity extends ActivMatchActivity {
 
@@ -33,6 +38,8 @@ public class CreateGroupActivity extends ActivMatchActivity {
     private MaterialButton rangeButton;
     private TextInputEditText groupDescription;
     private TextInputEditText groupName;
+
+    private String publicationId;
 
     private MatchmoreSDK matchmore;
 
@@ -73,14 +80,10 @@ public class CreateGroupActivity extends ActivMatchActivity {
             if (range == null || description == null || name == null || description.toString().isEmpty() || name.toString().isEmpty()) {
                 AlertDialogUtils.alert(this, getString(R.string.error_fields_empty), null);
             } else {
-                //matchmore.createPublication();
-                // TODO: ADD MATCHMORE AND GET GROUP ID AND SAVE SERVICE.CREATEGROUP();
-               // AlertDialog alertDialog = AlertDialogUtils.createLoadingDialog(this);
-               // alertDialog.show();
-                service.createGroup(new Group("TEST", name.toString(), description.toString(), storage.getUser(), Collections.singletonList(storage.getUser())));
+                Group group = new Group("", name.toString(), description.toString(), storage.getUser(), Collections.singletonList(storage.getUser()));
+                publishTopic(group, range);
+                service.createGroup(group);
                 finish();
-                // When done we should call
-                // alertDialog.dismiss();
             }
             return true;
         }
@@ -123,6 +126,48 @@ public class CreateGroupActivity extends ActivMatchActivity {
         );
         holder.value = alertDialog;
         alertDialog.show();
+    }
 
+    private void publishTopic(Group group, Integer range) {
+        ActivMatchPermissions.requestLocationPermission(this);
+        if (!ActivMatchPermissions.hasLocationPermission(this)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.error_location), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        AlertDialog alertDialog = AlertDialogUtils.createLoadingDialog(this);
+        alertDialog.show();
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("name", group.getName().toLowerCase());
+        properties.put("range", String.valueOf(range));
+        properties.put("description", group.getDescription());
+
+        matchmore.startUsingMainDevice(device -> {
+            Publication publication = new Publication("ActivMatch", range.doubleValue(), Double.MAX_VALUE);
+            publication.setProperties(properties);
+
+            matchmore.createPublicationForMainDevice(publication, createdPublication -> {
+                group.setGroupId(createdPublication.getId());
+                alertDialog.dismiss();
+                return Unit.INSTANCE;
+            }, e -> {
+                alertDialog.dismiss();
+                showErrorRetrySnackBar(() -> publishTopic(group, range));
+                return Unit.INSTANCE;
+            });
+
+            return Unit.INSTANCE;
+        }, e -> {
+            alertDialog.dismiss();
+            showErrorRetrySnackBar(() -> publishTopic(group, range));
+            return Unit.INSTANCE;
+        });
+
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            matchmore.startUpdatingLocation();
+        }
     }
 }
