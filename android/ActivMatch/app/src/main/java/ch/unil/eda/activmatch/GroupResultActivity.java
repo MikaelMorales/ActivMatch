@@ -34,6 +34,8 @@ public class GroupResultActivity extends ActivMatchActivity {
     private MatchmoreSDK matchmore;
 
     private Function2<Set<Match>, Device, Unit> matchListener;
+    private Handler handler = new Handler();
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,8 +89,6 @@ public class GroupResultActivity extends ActivMatchActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
-        updateAdapter(Collections.singletonList(new Pair<>(2, null)));
-
         matchListener = (matches, device) -> {
             setRecyclerViewListItems(matches);
             return Unit.INSTANCE;
@@ -99,6 +99,7 @@ public class GroupResultActivity extends ActivMatchActivity {
     public void onDestroy() {
         super.onDestroy();
         recyclerView.removeAllViews();
+        handler.removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -109,12 +110,13 @@ public class GroupResultActivity extends ActivMatchActivity {
             matchmore.getMatchMonitor().removeOnMatchListener(matchListener);
             return Unit.INSTANCE;
         }, e -> Unit.INSTANCE);
-
+        handler.removeCallbacksAndMessages(null);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        updateAdapter(Collections.singletonList(new Pair<>(2, null)));
 
         matchmore.startUsingMainDevice(device -> {
             matchmore.getMatchMonitor().addOnMatchListener(matchListener);
@@ -124,9 +126,9 @@ public class GroupResultActivity extends ActivMatchActivity {
 
         // In case there is no new match, the match listener is not call so we have to
         // update the list manually, using a timeout of 1sec, since polling is set to 3sec
-        Handler handler = new Handler();
+        GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
         handler.postDelayed(() -> {
-            if (((GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter()).getItems().size() == 1) {
+            if (adapter.getItems().size() == 1 && adapter.getItems().get(0).first == 2) {
                 setRecyclerViewListItems(matchmore.getMatches());
             }
         }, 3000);

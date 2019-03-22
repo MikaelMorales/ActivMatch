@@ -25,10 +25,6 @@ import ch.unil.eda.activmatch.io.ActivMatchStorage;
 import ch.unil.eda.activmatch.io.MockStorage;
 import io.matchmore.sdk.AlpsManager;
 import io.matchmore.sdk.Matchmore;
-import io.matchmore.sdk.MatchmoreConfig;
-import io.matchmore.sdk.MatchmoreSDK;
-import io.matchmore.sdk.api.MatchesApi;
-import io.matchmore.sdk.api.models.MatchesKt;
 import io.matchmore.sdk.api.models.MobileDevice;
 
 public class ActivMatchNotificationService extends FirebaseMessagingService {
