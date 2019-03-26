@@ -30,10 +30,8 @@ import ch.unil.eda.activmatch.ui.AlertDialogUtils;
 import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
 import ch.unil.eda.activmatch.utils.Holder;
-import io.matchmore.sdk.AlpsManager;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
-import io.matchmore.sdk.api.models.MobileDevice;
 
 public class MainActivity extends ActivMatchActivity {
 
@@ -46,13 +44,6 @@ public class MainActivity extends ActivMatchActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        // Set MainDevice for matchmore if possible
-        if (storage.getFcmToken() != null && Matchmore.isConfigured()) {
-            MobileDevice device = new MobileDevice(storage.getUser().getId(), "Android", "fcm://" + storage.getFcmToken(), null);
-            Matchmore.getInstance().startUsingMainDevice(device, null, null);
-            ((AlpsManager) Matchmore.getInstance()).registerDeviceToken("fcm://" + storage.getFcmToken());
-        }
 
         FloatingActionButton createGroup = findViewById(R.id.fab_create_group);
         createGroup.setOnClickListener(c -> {
@@ -102,6 +93,7 @@ public class MainActivity extends ActivMatchActivity {
         ActivMatchPermissions.requestLocationPermission(this);
 
         MatchmoreSDK matchmore = Matchmore.getInstance();
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             matchmore.startUpdatingLocation();
