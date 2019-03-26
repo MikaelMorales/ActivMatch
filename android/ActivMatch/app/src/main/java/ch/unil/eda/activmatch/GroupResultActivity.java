@@ -2,7 +2,6 @@ package ch.unil.eda.activmatch;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,9 +31,6 @@ public class GroupResultActivity extends ActivMatchActivity {
 
     private RecyclerView recyclerView;
     private MatchmoreSDK matchmore;
-
-    private Function2<Set<Match>, Device, Unit> matchListener;
-    private Handler handler = new Handler();
 
 
     @Override
@@ -72,10 +68,6 @@ public class GroupResultActivity extends ActivMatchActivity {
                 })
         ));
 
-        adapter.setCellDefinerForType(2, new CellView<>(
-                ViewId.of(R.layout.loading_cell)
-        ));
-
         adapter.setCellDefinerForType(97, new CellView<>(
                 ViewId.of(R.layout.small_spacer_cell)
         ));
@@ -88,50 +80,18 @@ public class GroupResultActivity extends ActivMatchActivity {
         adapter.setViewTypeMapper(p -> p.first);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
-        matchListener = (matches, device) -> {
-            setRecyclerViewListItems(matches);
-            return Unit.INSTANCE;
-        };
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         recyclerView.removeAllViews();
-        handler.removeCallbacksAndMessages(null);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        matchmore.startUsingMainDevice(device -> {
-            matchmore.getMatchMonitor().stopPollingMatches();
-            matchmore.getMatchMonitor().removeOnMatchListener(matchListener);
-            return Unit.INSTANCE;
-        }, e -> Unit.INSTANCE);
-        handler.removeCallbacksAndMessages(null);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        updateAdapter(Collections.singletonList(new Pair<>(2, null)));
-
-        matchmore.startUsingMainDevice(device -> {
-            matchmore.getMatchMonitor().addOnMatchListener(matchListener);
-            matchmore.getMatchMonitor().startPollingMatches(1000);
-            return Unit.INSTANCE;
-        }, e -> Unit.INSTANCE);
-
-        // In case there is no new match, the match listener is not call so we have to
-        // update the list manually, using a timeout of 1sec, since polling is set to 3sec
-        GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
-        handler.postDelayed(() -> {
-            if (adapter.getItems().size() == 1 && adapter.getItems().get(0).first == 2) {
-                setRecyclerViewListItems(matchmore.getMatches());
-            }
-        }, 3000);
+        setRecyclerViewListItems(matchmore.getMatches());
     }
 
     private void setRecyclerViewListItems(Set<Match> matches) {
