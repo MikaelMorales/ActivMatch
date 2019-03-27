@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.unil.eda.activmatch.models.User;
 import ch.unil.eda.activmatch.models.UserStatus;
@@ -20,7 +22,7 @@ public class ActivMatchStorage {
     public static final String STORAGE_USER_NAME = "STORAGE_USER_NAME";
     public static final String STORAGE_USER_STATUS = "STORAGE_USER_STATUS";
     public static final String STORAGE_GROUPS_ID = "STORAGE_GROUPS_ID";
-    public static final String FCM_TOKEN = "FCM_TOKEN";
+    public static final String STORAGE_MATCHES_ID = "STORAGE_MATCHES_ID";
 
     private SharedPreferences storage;
 
@@ -43,16 +45,6 @@ public class ActivMatchStorage {
         return new User(id, name, UserStatus.valueOf(status));
     }
 
-    public void setFcmToken(final String t) {
-        SharedPreferences.Editor editor = storage.edit();
-        editor.putString(FCM_TOKEN, t);
-        editor.apply();
-    }
-
-    public String getFcmToken() {
-        return storage.getString(FCM_TOKEN, "");
-    }
-
     public List<String> getGroupsId() {
         return getStringList(STORAGE_GROUPS_ID, new ArrayList<>());
     }
@@ -60,6 +52,22 @@ public class ActivMatchStorage {
     public void addGroupId(String groupId) {
         List<String> ids = getStringList(STORAGE_GROUPS_ID, new ArrayList<>());
         ids.add(groupId);
+        putStringList(STORAGE_GROUPS_ID, ids);
+    }
+
+    public void addNewMatch(Set<String> groupId) {
+        Set<String> matches = getLastMatches();
+        matches.addAll(groupId);
+        putStringList(STORAGE_MATCHES_ID, new ArrayList<>(matches));
+    }
+
+    public Set<String> getLastMatches() {
+        return new HashSet<>(getStringList(STORAGE_MATCHES_ID, new ArrayList<>()));
+    }
+
+    public void removeGroupId(String groupId) {
+        List<String> ids = getStringList(STORAGE_GROUPS_ID, new ArrayList<>());
+        ids.remove(groupId);
         putStringList(STORAGE_GROUPS_ID, ids);
     }
 

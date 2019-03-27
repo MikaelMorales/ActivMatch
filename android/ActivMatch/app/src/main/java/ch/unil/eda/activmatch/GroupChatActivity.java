@@ -104,7 +104,6 @@ public class GroupChatActivity extends ActivMatchActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        recyclerView.setAdapter(null);
         recyclerView.removeAllViews();
         handler.removeCallbacksAndMessages(null);
     }

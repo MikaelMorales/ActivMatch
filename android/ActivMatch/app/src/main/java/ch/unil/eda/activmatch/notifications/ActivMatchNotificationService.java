@@ -23,8 +23,6 @@ import ch.unil.eda.activmatch.R;
 import ch.unil.eda.activmatch.io.ActivMatchService;
 import ch.unil.eda.activmatch.io.ActivMatchStorage;
 import ch.unil.eda.activmatch.io.MockStorage;
-import io.matchmore.sdk.Matchmore;
-import io.matchmore.sdk.api.models.MobileDevice;
 
 public class ActivMatchNotificationService extends FirebaseMessagingService {
 
@@ -47,7 +45,7 @@ public class ActivMatchNotificationService extends FirebaseMessagingService {
                 .setContentTitle(getString(R.string.app_name))
                 .setSmallIcon(R.drawable.ic_notifications)
                 .setColor(getColor(R.color.colorAccent))
-                .setContentText(getString(R.string.notifications_matches))
+                .setContentText(remoteMessage.getData().get("title"))
                 .setWhen(System.currentTimeMillis())
                 .setSound(defaultSoundUri)
                 .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
@@ -70,12 +68,6 @@ public class ActivMatchNotificationService extends FirebaseMessagingService {
     public void onNewToken(String s) {
         super.onNewToken(s);
         ActivMatchStorage storage = new ActivMatchStorage(getApplicationContext());
-        storage.setFcmToken(s);
-
-        // Set default device for Matchmore
-        MobileDevice device = new MobileDevice(storage.getUser().getId(), "Android", storage.getFcmToken(), null);
-        Matchmore.getInstance().startUsingMainDevice(device, null, null);
-
         ActivMatchService service = new MockStorage(getApplicationContext());
         service.updateUserToken(storage.getUser().getId(), s);
     }

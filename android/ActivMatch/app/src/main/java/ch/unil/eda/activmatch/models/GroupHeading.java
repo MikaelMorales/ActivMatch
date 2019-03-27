@@ -2,6 +2,8 @@ package ch.unil.eda.activmatch.models;
 
 import android.support.annotation.NonNull;
 
+import java.util.Objects;
+
 public class GroupHeading {
 
     private String mGroupId;
@@ -39,5 +41,21 @@ public class GroupHeading {
 
     public void setDescription(String description) {
         this.mDescription = description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupHeading that = (GroupHeading) o;
+        return Objects.equals(mGroupId, that.mGroupId) &&
+                Objects.equals(mName, that.mName) &&
+                Objects.equals(mDescription, that.mDescription);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(mGroupId, mName, mDescription);
     }
 }

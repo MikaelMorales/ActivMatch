@@ -34,11 +34,6 @@ public class SignInActivity extends ActivMatchActivity {
         findViewById(R.id.signin_layout).setVisibility(View.INVISIBLE);
         findViewById(R.id.sign_in_button).setOnClickListener(this::onSignInClick);
 
-        // Configuration of api key/world id
-        if (!Matchmore.isConfigured()) {
-            Matchmore.config(this, getString(R.string.matchmore_api_key), true);
-        }
-
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

@@ -11,10 +11,6 @@ import android.text.Editable;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.firebase.iid.FirebaseInstanceId;
-
-import java.util.Collections;
-
 import ch.unil.eda.activmatch.ui.AlertDialogUtils;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
 import io.matchmore.sdk.Matchmore;
@@ -63,26 +59,11 @@ public class SearchActivity extends ActivMatchActivity {
         if (topic == null || topic.toString().isEmpty()) {
             AlertDialogUtils.alert(this, getString(R.string.topic_error_empty), null);
         } else {
-            String fcmToken = storage.getFcmToken();
-            if (fcmToken == null) {
-                FirebaseInstanceId.getInstance().getInstanceId()
-                        .addOnCompleteListener(task -> {
-                            if (!task.isSuccessful()) {
-                                // TODO: Show error and retry option
-                                return;
-                            }
-                            // Get new Instance ID token
-                            String token = task.getResult().getToken();
-                            storage.setFcmToken(token);
-                            subscribeToTopic(token, topic.toString());
-                        });
-            } else {
-                subscribeToTopic(fcmToken, topic.toString());
-            }
+            subscribeToTopic(topic.toString());
         }
     }
 
-    private void subscribeToTopic(String FCMToken, String topicName) {
+    private void subscribeToTopic(String topicName) {
         if (!ActivMatchPermissions.hasLocationPermission(this)) {
             Toast.makeText(getApplicationContext(), getString(R.string.error_location), Toast.LENGTH_LONG).show();
             return;
@@ -91,10 +72,9 @@ public class SearchActivity extends ActivMatchActivity {
         AlertDialog alertDialog = AlertDialogUtils.createLoadingDialog(this);
         alertDialog.show();
 
-        matchmore.startUsingMainDevice(device1 -> {
+        matchmore.startUsingMainDevice(matchmore.getMain(), d -> {
             Subscription subscription = new Subscription("ActivMatch", RANGE, DURATION);
-            subscription.setSelector("name LIKE '%" + topicName.toLowerCase()+"%'");
-            subscription.setPushers(Collections.singletonList("fcm://" + FCMToken));
+            subscription.setSelector("name LIKE '" + topicName.toLowerCase()+"'");
 
             matchmore.createSubscriptionForMainDevice(subscription, createdSubscription -> {
                 alertDialog.dismiss();
@@ -102,17 +82,15 @@ public class SearchActivity extends ActivMatchActivity {
                 return Unit.INSTANCE;
             }, e -> {
                 alertDialog.dismiss();
-                showErrorRetrySnackBar(() -> subscribeToTopic(FCMToken, topicName));
+                showErrorRetrySnackBar(() -> subscribeToTopic(topicName));
                 return Unit.INSTANCE;
             });
 
             return Unit.INSTANCE;
         }, e -> {
             alertDialog.dismiss();
-            showErrorRetrySnackBar(() -> subscribeToTopic(FCMToken, topicName));
+            showErrorRetrySnackBar(() -> subscribeToTopic(topicName));
             return Unit.INSTANCE;
         });
-
-        matchmore.getMatchMonitor().startPollingMatches();
     }
 }
