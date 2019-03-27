@@ -1,14 +1,21 @@
 package ch.unil.eda.activmatch.entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 
 @Entity
 public class User implements Serializable {
+    
+    public enum UserStatus {
+        AVAILABLE,
+        BUSY
+    }
     
     @Id
     @GeneratedValue
@@ -18,6 +25,9 @@ public class User implements Serializable {
     
     @Enumerated(EnumType.STRING)
     private UserStatus status;
+    
+    @ManyToMany
+    private List<Group> groups;
 
     public Long getId() {
         return id;
@@ -41,5 +51,13 @@ public class User implements Serializable {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public List<Group> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(List<Group> groups) {
+        this.groups = groups;
     }
 }
