@@ -47,7 +47,7 @@ public class ActivMatchActivity extends AppCompatActivity {
         MatchmoreSDK matchmore = Matchmore.getInstance();
         matchmore.startUsingMainDevice(device -> {
             matchmore.getMatchMonitor().addOnMatchListener((matches, d) -> {
-                Set<String> myGroups = new HashSet<>(storage.getGroupsId());
+                Set<String> myGroups = storage.getGroupsId();
                 Set<String> lastMatches = storage.getLastMatches();
                 Set<String> currentMatches = matches.stream()
                         .filter(p -> !myGroups.contains(p.getPublication().getId()))

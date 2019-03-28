@@ -21,11 +21,14 @@ import com.jakewharton.rxbinding.widget.TextViewTextChangeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
+import ch.unil.eda.activmatch.models.GroupHeading;
 import ch.unil.eda.activmatch.ui.AlertDialogUtils;
 import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
@@ -147,8 +150,12 @@ public class SearchActivity extends ActivMatchActivity {
     private void updateDisplay() {
         swipeRefreshLayout.setRefreshing(true);
         List<Pair<Integer, String>> items = new ArrayList<>();
+        List<GroupHeading> matchingGroups = service.getMatchingGroups(searchField.getText().toString());
 
-        List<String> matchingTopics = service.getMatchingTopics(searchField.getText().toString());
+        Set<String> myGroups = storage.getGroupsId();
+        List<String> matchingTopics = matchingGroups.stream().filter(g -> !myGroups.contains(g.getGroupId()))
+                .map(GroupHeading::getName)
+                .collect(Collectors.toList());
 
         if (matchingTopics.isEmpty()) {
             items.add(new Pair<>(0, getString(R.string.topic_error)));

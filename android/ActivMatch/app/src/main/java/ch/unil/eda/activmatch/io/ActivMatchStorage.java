@@ -45,8 +45,8 @@ public class ActivMatchStorage {
         return new User(id, name, UserStatus.valueOf(status));
     }
 
-    public List<String> getGroupsId() {
-        return getStringList(STORAGE_GROUPS_ID, new ArrayList<>());
+    public Set<String> getGroupsId() {
+        return new HashSet<>(getStringList(STORAGE_GROUPS_ID, new ArrayList<>()));
     }
 
     public void addGroupId(String groupId) {
