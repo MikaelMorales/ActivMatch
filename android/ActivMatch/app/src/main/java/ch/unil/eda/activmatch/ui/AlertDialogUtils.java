@@ -53,6 +53,22 @@ public class AlertDialogUtils {
         ad.show();
     }
 
+    public static void confirmation(Context c, CharSequence title, final Runnable onOk) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(c);
+        View v = View.inflate(c, R.layout.dialog_title, null);
+        TextView text = v.findViewById(R.id.dialog_text);
+        text.setText(title);
+        builder.setCustomTitle(v);
+        builder.setNegativeButton(c.getString(android.R.string.cancel), (dialogInterface, i) -> dialogInterface.dismiss());
+        builder.setPositiveButton(c.getString(android.R.string.ok), (dialogInterface, i) -> {
+            onOk.run();
+            dialogInterface.dismiss();
+        });
+        AlertDialog ad = builder.create();
+        ad.setCanceledOnTouchOutside(false);
+        ad.show();
+    }
+
     public static AlertDialog createLoadingDialog(Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View v = View.inflate(context, R.layout.progress_dialog, null);

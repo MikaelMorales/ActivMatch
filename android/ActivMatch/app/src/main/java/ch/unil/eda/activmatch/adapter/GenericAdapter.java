@@ -130,6 +130,13 @@ public class GenericAdapter<T> extends RecyclerView.Adapter<GenericAdapter<T>.Vi
         return items.size();
     }
 
+    public void clearItems() {
+        if (!items.isEmpty()) {
+            items.clear();
+            notifyDataSetChanged();
+        }
+    }
+
     public void onItemDismiss(int position) {
         items.remove(position);
         notifyItemRemoved(position);

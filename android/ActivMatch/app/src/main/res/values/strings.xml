@@ -27,7 +27,8 @@
     <string name="activity_group_search_title">Subscribe to a topic</string>
     <string name="search_hint">Enter a topic name</string>
     <string name="activity_subscribe_topic">Subscribe to topic</string>
-    <string name="topic_error_empty">You need to write a topic name</string>
+    <string name="topic_sub_confirmation">Do you really want to subscribe to %s?</string>
+    <string name="topic_error">This topic does not exist</string>
 
     <!-- Join Group activity -->
     <string name="join_group_search_title">Groups nearby</string>

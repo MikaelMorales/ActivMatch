@@ -2,6 +2,7 @@ package ch.unil.eda.activmatch;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,6 +32,7 @@ public class GroupChatActivity extends ActivMatchActivity {
 
     private CustomSwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
+    private boolean reachedBottom = false;
 
     private String groupId;
     private String groupName;
@@ -93,6 +95,14 @@ public class GroupChatActivity extends ActivMatchActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                reachedBottom = !recyclerView.canScrollVertically(1);
+            }
+        });
+
         sendButton = findViewById(R.id.send_button);
         sendButton.setEnabled(false);
         sendButton.setOnClickListener(c -> sendMessage());
@@ -153,6 +163,9 @@ public class GroupChatActivity extends ActivMatchActivity {
 
         for (int i=currentLength; i < messages.size(); i++)
             adapter.onItemAdd(i, new Pair<>(0, messages.get(i)));
+
+        if (reachedBottom)
+            recyclerView.scrollToPosition(adapter.getItems().size() - 1);
     }
 
     private void sendMessage() {

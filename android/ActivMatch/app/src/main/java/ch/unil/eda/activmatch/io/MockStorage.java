@@ -31,6 +31,13 @@ public class MockStorage implements ActivMatchService {
     }
 
     @Override
+    public List<String> getMatchingTopics(String query) {
+        List<GroupHeading> groups = getGroups(null);
+        return groups.stream().map(GroupHeading::getName)
+                .filter(s -> s.contains(query) || query.contains(s)).collect(Collectors.toList());
+    }
+
+    @Override
     public List<GroupHeading> getGroups(String userId) {
        List<String> groupIds = getStringList(GROUPS_KEY, new ArrayList<>());
        List<Group> groups = new ArrayList<>();
