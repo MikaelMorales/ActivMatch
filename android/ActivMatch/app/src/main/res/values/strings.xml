@@ -29,6 +29,7 @@
     <string name="activity_subscribe_topic">Subscribe to topic</string>
     <string name="topic_sub_confirmation">Do you really want to subscribe to %s?</string>
     <string name="topic_error">This topic does not exist or was created by you</string>
+    <string name="subscribe_anyway">Subscribe anyway</string>
 
     <!-- Join Group activity -->
     <string name="join_group_search_title">Groups nearby</string>

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -69,8 +70,17 @@ public class SearchActivity extends ActivMatchActivity {
         swipeRefreshLayout.setEnabled(false);
 
         GenericAdapter<Pair<Integer, String>> adapter = new GenericAdapter<>(new CellView<>(
-                ViewId.of(R.layout.simple_error_cell),
-                (item, view) -> ((TextView) view).setText(item.second)
+                ViewId.of(R.layout.subscribe_topic_not_found),
+                new int[] {R.id.topic_error_message, R.id.topic_subscribe_button},
+                (id, item, view) -> {
+                    if (id == R.id.topic_error_message) {
+                        ((TextView) view).setText(R.string.topic_error);
+                    } else if (id == R.id.topic_subscribe_button) {
+                        view.setOnClickListener(c -> {
+                            onSubscribeClick(null, item.second);
+                        });
+                    }
+                }
         ));
 
         adapter.setCellDefinerForType(1, new CellView<>(
@@ -82,7 +92,7 @@ public class SearchActivity extends ActivMatchActivity {
                     }
                 },
                 (item, view) -> view.setOnClickListener(c -> {
-                    AlertDialogUtils.confirmation(this, getString(R.string.topic_sub_confirmation, item.second), () -> subscribeToTopic(view, item.second));
+                    onSubscribeClick(view, item.second);
                 })
         ));
 
@@ -158,7 +168,7 @@ public class SearchActivity extends ActivMatchActivity {
                 .collect(Collectors.toList());
 
         if (matchingTopics.isEmpty()) {
-            items.add(new Pair<>(0, getString(R.string.topic_error)));
+            items.add(new Pair<>(0, searchField.getText().toString()));
         } else {
             items.add(new Pair<>(99, null));
             for (String s : matchingTopics) {
@@ -172,7 +182,11 @@ public class SearchActivity extends ActivMatchActivity {
         swipeRefreshLayout.setRefreshing(false);
     }
 
-    private void subscribeToTopic(View v, String topicName) {
+    private void onSubscribeClick(@Nullable View v, String topicName) {
+        AlertDialogUtils.confirmation(this, getString(R.string.topic_sub_confirmation, topicName), () -> subscribeToTopic(v, topicName));
+    }
+
+    private void subscribeToTopic(@Nullable View v, String topicName) {
         AlertDialog alertDialog = AlertDialogUtils.createLoadingDialog(this);
         alertDialog.show();
 
@@ -182,9 +196,14 @@ public class SearchActivity extends ActivMatchActivity {
             subscription.setSelector("name LIKE '" + topicName.toLowerCase()+"'");
 
             matchmore.createSubscriptionForMainDevice(subscription, createdSubscription -> {
-                int position = recyclerView.getChildAdapterPosition(v);
-                adapter.onItemDismiss(position);
+                if (v != null) {
+                    int position = recyclerView.getChildAdapterPosition(v);
+                    adapter.onItemDismiss(position);
+                }
                 alertDialog.dismiss();
+                if (v == null) {
+                    finish();
+                }
                 return Unit.INSTANCE;
             }, e -> {
                 alertDialog.dismiss();
