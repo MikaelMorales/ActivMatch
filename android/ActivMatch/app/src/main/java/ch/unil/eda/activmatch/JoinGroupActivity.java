@@ -33,15 +33,17 @@ public class JoinGroupActivity extends ActivMatchActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_layout);
-        getSupportActionBar().setTitle(R.string.join_group_search_title);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Bundle args = getIntent().getExtras();
+        groupName = getString(R.string.join_group_search_title);
         if (args != null) {
             groupName = args.getString(GROUP_NAME);
             groupId = args.getString(GROUP_ID);
             groupDescription = args.getString(GROUP_DESCRIPTION);
         }
+
+        getSupportActionBar().setTitle(groupName);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         refreshLayout = findViewById(R.id.swipe_refresh_layout);
         recyclerView = new RecyclerView(getApplicationContext());

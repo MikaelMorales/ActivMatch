@@ -32,7 +32,7 @@
     <string name="subscribe_anyway">Subscribe anyway</string>
 
     <!-- Join Group activity -->
-    <string name="join_group_search_title">Groups nearby</string>
+    <string name="join_group_search_title">Group nearby</string>
     <string name="join_group">Join this group</string>
 
     <!-- Create group activity -->
