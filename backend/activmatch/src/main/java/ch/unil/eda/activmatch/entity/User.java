@@ -1,6 +1,7 @@
 package ch.unil.eda.activmatch.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -27,7 +28,7 @@ public class User implements Serializable {
     private UserStatus status;
     
     @ManyToMany
-    private List<Group> groups;
+    private List<Group> groups = new ArrayList<>();
 
     public Long getId() {
         return id;
