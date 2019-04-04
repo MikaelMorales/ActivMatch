@@ -1,14 +1,16 @@
 package ch.unil.eda.activmatch.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
-@Entity
+@Entity(name="GROUP_")
 public class Group implements Serializable {
     
     @Id
@@ -22,8 +24,8 @@ public class Group implements Serializable {
     @ManyToOne
     private User creator;
     
-    @ManyToMany
-    private List<User> members;
+    @ManyToMany(fetch=FetchType.EAGER)
+    private List<User> members = new ArrayList<>();
 
     public Long getId() {
         return id;
