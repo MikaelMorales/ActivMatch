@@ -1,11 +1,11 @@
 package ch.unil.eda.activmatch.data;
 
 import ch.unil.eda.activmatch.entity.User;
-import javax.enterprise.context.ApplicationScoped;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-@ApplicationScoped
+@Stateless
 public class UserRepository {
     
     @PersistenceContext
