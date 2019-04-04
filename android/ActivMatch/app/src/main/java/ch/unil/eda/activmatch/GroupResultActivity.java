@@ -96,6 +96,7 @@ public class GroupResultActivity extends ActivMatchActivity {
 
     private void setRecyclerViewListItems(Set<Match> matches) {
         List<Pair<Integer, GroupHeading>> items = new ArrayList<>();
+        Set<String> myGroups = storage.getGroupsId();
         items.add(new Pair<>(97, null));
         if (matches.isEmpty()) {
             items.add(new Pair<>(99, new GroupHeading(null, getString(R.string.no_matches_found), null)));
@@ -104,7 +105,7 @@ public class GroupResultActivity extends ActivMatchActivity {
                 PublicationWithLocation p = m.getPublication();
                 return new Pair<>(0, new GroupHeading(p.getId(), (String) p.getProperties().get("name"), (String) p.getProperties().get("description")));
             }).distinct()
-                    .filter(p -> !storage.getGroupsId().contains(p.second.getGroupId()))
+                    .filter(p -> !myGroups.contains(p.second.getGroupId()))
                     .collect(Collectors.toList()));
         }
         updateAdapter(items);

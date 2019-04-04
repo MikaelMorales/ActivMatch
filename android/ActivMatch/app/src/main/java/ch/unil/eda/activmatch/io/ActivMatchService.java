@@ -30,4 +30,6 @@ public interface ActivMatchService {
 
     void updateUserToken(String userId, String userToken);
 
+    List<GroupHeading> getMatchingGroups(String query);
+
 }
