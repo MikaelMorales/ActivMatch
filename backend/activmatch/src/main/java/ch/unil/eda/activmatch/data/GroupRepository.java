@@ -3,12 +3,12 @@ package ch.unil.eda.activmatch.data;
 import ch.unil.eda.activmatch.entity.Group;
 import ch.unil.eda.activmatch.entity.User;
 import java.util.List;
-import javax.enterprise.context.ApplicationScoped;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-@ApplicationScoped
+@Stateless
 public class GroupRepository {
     
     @PersistenceContext
@@ -17,8 +17,15 @@ public class GroupRepository {
     @Inject
     private UserRepository userRepository;
  
-    public void create(Group group) {
+    public boolean create(Long creatorId, Group group) {
+        User creator = userRepository.find(creatorId);
+        if (creator == null) {
+            return false;
+        }
+        group.setCreator(creator);
+        group.getMembers().add(creator);
         em.persist(group);
+        return true;
     }
     
     public List<Group> findAll(Long userId) {
