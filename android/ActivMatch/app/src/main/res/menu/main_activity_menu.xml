@@ -17,5 +17,10 @@
         android:id="@+id/action_status"
         android:title="@string/action_status"
         android:icon="@drawable/ic_status"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:icon="@drawable/ic_settings"
+        app:showAsAction="never" />
 </menu>

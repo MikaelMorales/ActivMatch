@@ -141,6 +141,10 @@ public class MainActivity extends ActivMatchActivity {
             Intent intent = new Intent(this, SearchActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, ActivMatchSettingsActivity.class);
+            startActivity(intent);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

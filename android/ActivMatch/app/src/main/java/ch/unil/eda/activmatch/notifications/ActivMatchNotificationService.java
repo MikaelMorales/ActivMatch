@@ -29,6 +29,12 @@ public class ActivMatchNotificationService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
+
+        ActivMatchStorage storage = new ActivMatchStorage(getApplicationContext());
+        if (!storage.areNotificationsEnabled()) {
+            return;
+        }
+
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 

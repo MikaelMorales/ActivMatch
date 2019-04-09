@@ -18,11 +18,12 @@ import static android.content.Context.MODE_PRIVATE;
  */
 public class ActivMatchStorage {
 
-    public static final String STORAGE_USER_ID = "STORAGE_USER_ID";
-    public static final String STORAGE_USER_NAME = "STORAGE_USER_NAME";
-    public static final String STORAGE_USER_STATUS = "STORAGE_USER_STATUS";
-    public static final String STORAGE_GROUPS_ID = "STORAGE_GROUPS_ID";
-    public static final String STORAGE_MATCHES_ID = "STORAGE_MATCHES_ID";
+    private static final String STORAGE_USER_ID = "STORAGE_USER_ID";
+    private static final String STORAGE_USER_NAME = "STORAGE_USER_NAME";
+    private static final String STORAGE_USER_STATUS = "STORAGE_USER_STATUS";
+    private static final String STORAGE_GROUPS_ID = "STORAGE_GROUPS_ID";
+    private static final String STORAGE_MATCHES_ID = "STORAGE_MATCHES_ID";
+    private static final String SETTINGS_NOTIFICATION_KEY = "SETTINGS_NOTIFICATION_KEY";
 
     private SharedPreferences storage;
 
@@ -69,6 +70,16 @@ public class ActivMatchStorage {
         List<String> ids = getStringList(STORAGE_GROUPS_ID, new ArrayList<>());
         ids.remove(groupId);
         putStringList(STORAGE_GROUPS_ID, ids);
+    }
+
+    public boolean areNotificationsEnabled() {
+        return storage.getBoolean(SETTINGS_NOTIFICATION_KEY, true);
+    }
+
+    public void enableNotifications(boolean isEnabled) {
+        SharedPreferences.Editor editor = storage.edit();
+        editor.putBoolean(SETTINGS_NOTIFICATION_KEY, isEnabled);
+        editor.apply();
     }
 
     private List<String> getStringList(String key, List<String> ifNotFound) {

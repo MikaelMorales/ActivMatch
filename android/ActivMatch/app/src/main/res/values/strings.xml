@@ -13,6 +13,7 @@
     <string name="action_search">Search for groups</string>
     <string name="action_status">Change your status</string>
     <string name="action_matches">See your matches</string>
+    <string name="action_settings">Settings</string>
 
     <!-- Group details activity menu -->
     <string name="action_quit">Quit the group</string>
@@ -22,6 +23,11 @@
     <string name="change_status">Update your status</string>
     <string name="status_available">Available</string>
     <string name="status_busy">Busy</string>
+
+    <!-- Settings activity -->
+    <string name="settings_activity_title">Settings</string>
+    <string name="settings_activity_notifications">Enable notifications</string>
+
 
     <!-- Search activity -->
     <string name="activity_group_search_title">Subscribe to a topic</string>
