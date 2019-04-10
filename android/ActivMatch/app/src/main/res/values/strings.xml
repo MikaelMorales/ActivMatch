@@ -1,5 +1,5 @@
 <resources>
-    <string name="matchmore_api_key">eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhbHBzIiwic3ViIjoiMmVlZGE3ODUtNTJlZC00MDU0LWIxYmMtNTlhYzIyNzIzM2JkIiwiYXVkIjpbIlB1YmxpYyJdLCJuYmYiOjE1NTQ4ODY2MDYsImlhdCI6MTU1NDg4NjYwNiwianRpIjoiMSJ9.SjqoFuqiMsbBj-PDWe1Z2ZgAcpUyEvA0frebeaOJFOWw2ag1Fa7bsIAjCXAtX6bnp5FzCttkeIQ7PjxGwTZAFg</string>
+    <string name="matchmore_api_key">eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhbHBzIiwic3ViIjoiZTUxMDYxMWItNzJjMi00MDE5LWE2M2YtZjc2MTNmMjdmNzg1IiwiYXVkIjpbIlB1YmxpYyJdLCJuYmYiOjE1NTQ4OTU3MTUsImlhdCI6MTU1NDg5NTcxNSwianRpIjoiMSJ9.eREMi1tJtwCWhfWhJOXdKE70G4VqaYIX17uZpZfKXQtVv98zLqgcB05pvd8Kbj_b0JA13y3y_fgKwPngMVUo-g</string>
     <string name="app_name">ActivMatch</string>
     <string name="notifications_matches">New groups were found !</string>
 
