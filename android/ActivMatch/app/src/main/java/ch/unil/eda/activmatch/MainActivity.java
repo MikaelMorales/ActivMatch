@@ -12,10 +12,14 @@ import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,7 +37,10 @@ import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
 import io.matchmore.sdk.api.models.Match;
+import io.matchmore.sdk.api.models.MatchmoreLocation;
 import io.matchmore.sdk.api.models.PublicationWithLocation;
+import io.matchmore.sdk.managers.LocationSender;
+import io.matchmore.sdk.managers.MatchmoreLocationProvider;
 
 public class MainActivity extends ActivMatchActivity {
 
@@ -42,6 +49,7 @@ public class MainActivity extends ActivMatchActivity {
     private MatchmoreSDK matchmore;
     private Handler handler = new Handler();
     private Set<GroupHeading> displayedGroups = new HashSet<>();
+    private FusedLocationProviderClient mFusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +63,7 @@ public class MainActivity extends ActivMatchActivity {
             Intent intent = new Intent(this, CreateGroupActivity.class);
             startActivity(intent);
         });
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
 
         refreshLayout = findViewById(R.id.swipe_refresh_layout);
         recyclerView = new RecyclerView(getApplicationContext());
@@ -104,7 +113,7 @@ public class MainActivity extends ActivMatchActivity {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            matchmore.startUpdatingLocation();
+            matchmore.startUpdatingLocation(new LocationProvider());
             matchmore.startRanging();
         }
     }
@@ -130,8 +139,8 @@ public class MainActivity extends ActivMatchActivity {
         updateDisplay();
 
         int delay = 1000; // 1s
-        handler.postDelayed(new Runnable(){
-            public void run(){
+        handler.postDelayed(new Runnable() {
+            public void run() {
                 pollForNewMatches();
                 handler.postDelayed(this, delay);
             }
@@ -169,7 +178,7 @@ public class MainActivity extends ActivMatchActivity {
             MatchmoreSDK matchmore = Matchmore.getInstance();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                matchmore.startUpdatingLocation();
+                matchmore.startUpdatingLocation(new LocationProvider());
                 matchmore.startRanging();
             } else {
                 ActivMatchPermissions.requestLocationPermission(this);
@@ -214,12 +223,9 @@ public class MainActivity extends ActivMatchActivity {
             adapter.onItemDismiss(1);
         }
         int length = adapter.getItemCount() - 1;
-        Log.d("MainActivity", "MainActivity: length" + length);
-        Log.d("MainActivity", "MainActivity: " + groups);
         for (GroupHeading g : sortedGroups) {
             adapter.onItemAdd(length, new Pair<>(0, g));
             length++;
-            Log.d("MainActivity", "MainActivity: " + length);
         }
         adapter.onItemAdd(length, new Pair<>(98, null));
         displayedGroups.addAll(groups);
@@ -242,5 +248,25 @@ public class MainActivity extends ActivMatchActivity {
 
     private GroupHeading createDummyGroupHeading(String text) {
         return new GroupHeading("", text, "", 0, 0);
+    }
+
+    private class LocationProvider implements MatchmoreLocationProvider {
+
+        @Override
+        public void startUpdatingLocation(@NotNull LocationSender locationSender) {
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            mFusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                if (location != null) {
+                    locationSender.sendLocation(new MatchmoreLocation(location.getLatitude(),
+                            location.getLongitude(), location.getAltitude()));
+                }
+            });
+        }
+
+        @Override
+        public void stopUpdatingLocation() { }
     }
 }

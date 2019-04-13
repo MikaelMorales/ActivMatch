@@ -1,14 +1,10 @@
 package ch.unil.eda.activmatch;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -48,7 +44,6 @@ public class CreateGroupActivity extends ActivMatchActivity {
     private TextInputEditText groupName;
     private FusedLocationProviderClient mFusedLocationClient;
 
-
     private MatchmoreSDK matchmore;
 
     @Override
@@ -68,8 +63,6 @@ public class CreateGroupActivity extends ActivMatchActivity {
         groupName = findViewById(R.id.group_name);
 
         rangeButton.setOnClickListener(c -> toggleRangeView());
-
-        ActivMatchPermissions.requestLocationPermission(this);
     }
 
 
@@ -96,19 +89,6 @@ public class CreateGroupActivity extends ActivMatchActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == ActivMatchPermissions.LOCATION_PERMISSION_CODE) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                finish();
-            } else {
-                matchmore.startUpdatingLocation();
-                matchmore.startRanging();
-            }
-        }
     }
 
     private void toggleRangeView() {
@@ -152,6 +132,9 @@ public class CreateGroupActivity extends ActivMatchActivity {
         properties.put("range", String.valueOf(range));
         properties.put("description", group.getDescription());
 
+        mFusedLocationClient.getLastLocation().addOnFailureListener(e -> {
+            showErrorSnackBar(getString(R.string.error_location_unavailable));
+        });
         mFusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
             // Got last known location. In some rare situations this can be null.
             if (location != null) {
@@ -159,7 +142,8 @@ public class CreateGroupActivity extends ActivMatchActivity {
                     Publication publication = new Publication("ActivMatch", range.doubleValue(), 3.154 * Math.pow(10, 7));
                     publication.setProperties(properties);
 
-                    PinDevice pinDevice = new PinDevice(group.getName(), new MatchmoreLocation(location.getLatitude(), location.getLongitude(), location.getAltitude()));
+                    PinDevice pinDevice = new PinDevice(group.getName(),
+                            new MatchmoreLocation(location.getLatitude(), location.getLongitude(), location.getAltitude()));
                     matchmore.createPinDevice(pinDevice, pin -> {
                         matchmore.createPublication(publication, pin.getId(), p -> {
                             group.setGroupId(p.getId());

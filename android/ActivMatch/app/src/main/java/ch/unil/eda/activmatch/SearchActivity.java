@@ -1,12 +1,8 @@
 package ch.unil.eda.activmatch;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,7 +26,6 @@ import ch.unil.eda.activmatch.adapter.ViewId;
 import ch.unil.eda.activmatch.ui.AlertDialogUtils;
 import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
 import ch.unil.eda.activmatch.utils.ActivMatchConstants;
-import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
 import io.matchmore.sdk.api.models.Subscription;
@@ -117,8 +112,6 @@ public class SearchActivity extends ActivMatchActivity {
         adapter.setViewTypeMapper(p -> p.first);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
-        ActivMatchPermissions.requestLocationPermission(this);
     }
 
     @Override
@@ -135,19 +128,6 @@ public class SearchActivity extends ActivMatchActivity {
     public void onPause() {
         super.onPause();
         swipeRefreshLayout.setRefreshing(false);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == ActivMatchPermissions.LOCATION_PERMISSION_CODE) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                finish();
-            } else {
-                matchmore.startUpdatingLocation();
-                matchmore.startRanging();
-            }
-        }
     }
 
     private void updateDisplay() {
