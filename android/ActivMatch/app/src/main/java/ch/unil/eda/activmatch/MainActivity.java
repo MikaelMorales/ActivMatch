@@ -181,7 +181,7 @@ public class MainActivity extends ActivMatchActivity {
                 matchmore.startUpdatingLocation(new LocationProvider());
                 matchmore.startRanging();
             } else {
-                ActivMatchPermissions.requestLocationPermission(this);
+                finishAffinity();
             }
         }
     }

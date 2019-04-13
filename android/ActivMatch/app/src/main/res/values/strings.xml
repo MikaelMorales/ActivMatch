@@ -1,8 +1,8 @@
 <resources>
-    <string name="matchmore_api_key">eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhbHBzIiwic3ViIjoiNzY0MGU0ODQtNzlmMS00YjMxLTljZDktNTM3NGYwNjUxZTA2IiwiYXVkIjpbIlB1YmxpYyJdLCJuYmYiOjE1NTUxNTkxMTAsImlhdCI6MTU1NTE1OTExMCwianRpIjoiMSJ9.z3WSmzsj2H-AzgxxpnOSMWC1EKlxASNllW-d7xYMyYucwpPgFlCmmT2nN5bThr7Z2hC27PnZ6HvAi_dXq8m4aQ</string>
+    <string name="matchmore_api_key">eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhbHBzIiwic3ViIjoiM2I4ZTg4MzEtNGExZC00YzA3LTg1YzQtNDMwNTQ0MGEyMDI3IiwiYXVkIjpbIlB1YmxpYyJdLCJuYmYiOjE1NTUxNjE2NjcsImlhdCI6MTU1NTE2MTY2NywianRpIjoiMSJ9.lglx3OFMq-FWiaAp0PVDs2mFQ536ZVuAVR84Zt_2o7p7cfuKXT24iZQ6_7i-3v71ULIri2u0Xz29dSVnL_22Iw</string>
     <string name="app_name">ActivMatch</string>
     <string name="notifications_matches">New groups were found !</string>
-
+git
     <!-- IO Strings -->
     <string name="sending">Sending…</string>
     <string name="sdk_retry">Retry</string>

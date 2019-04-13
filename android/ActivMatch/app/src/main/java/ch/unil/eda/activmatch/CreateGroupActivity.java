@@ -132,9 +132,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
         properties.put("range", String.valueOf(range));
         properties.put("description", group.getDescription());
 
-        mFusedLocationClient.getLastLocation().addOnFailureListener(e -> {
-            showErrorSnackBar(getString(R.string.error_location_unavailable));
-        });
+        mFusedLocationClient.getLastLocation().addOnFailureListener(e -> showErrorSnackBar(getString(R.string.error_location_unavailable)));
         mFusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
             // Got last known location. In some rare situations this can be null.
             if (location != null) {
