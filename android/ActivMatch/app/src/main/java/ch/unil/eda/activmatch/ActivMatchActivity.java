@@ -17,7 +17,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,6 +47,7 @@ public class ActivMatchActivity extends AppCompatActivity {
         matchmore.startUsingMainDevice(device -> {
             matchmore.getMatchMonitor().addOnMatchListener((matches, d) -> {
                 Set<String> myGroups = storage.getGroupsId();
+                myGroups.addAll(storage.getGroupsLeft());
                 Set<String> lastMatches = storage.getLastMatches();
                 Set<String> currentMatches = matches.stream()
                         .filter(p -> !myGroups.contains(p.getPublication().getId()))
@@ -87,6 +87,15 @@ public class ActivMatchActivity extends AppCompatActivity {
         sb.show();
     }
 
+    protected void showErrorSnackBar(String error) {
+        View view = getRootView();
+        if (view == null)
+            return;
+        Snackbar sb = Snackbar.make(view, error, Snackbar.LENGTH_LONG);
+        sb.show();
+    }
+
+
     private View getRootView() {
         View rootView = getWindow().getDecorView().findViewById(android.R.id.content);
         return rootView;
@@ -104,7 +113,7 @@ public class ActivMatchActivity extends AppCompatActivity {
             notificationManager.createNotificationChannel(defaultChannel);
         }
 
-        Intent intent = new Intent(this, GroupResultActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), "ActivMatch")
                 .setContentTitle(getString(R.string.app_name))

@@ -3,40 +3,45 @@ package ch.unil.eda.activmatch;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.util.Pair;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
 import ch.unil.eda.activmatch.models.GroupHeading;
-import ch.unil.eda.activmatch.models.UserStatus;
-import ch.unil.eda.activmatch.ui.AlertDialogUtils;
 import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
-import ch.unil.eda.activmatch.utils.Holder;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
+import io.matchmore.sdk.api.models.Match;
+import io.matchmore.sdk.api.models.PublicationWithLocation;
 
 public class MainActivity extends ActivMatchActivity {
 
     private CustomSwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
+    private MatchmoreSDK matchmore;
+    private Handler handler = new Handler();
+    private Set<GroupHeading> displayedGroups = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +73,9 @@ public class MainActivity extends ActivMatchActivity {
                     Intent intent = new Intent(this, GroupDetailsActivity.class);
                     intent.putExtra(GroupDetailsActivity.GROUP_ID_KEY, item.second.getGroupId());
                     intent.putExtra(GroupDetailsActivity.GROUP_NAME_KEY, item.second.getName());
+                    intent.putExtra(GroupDetailsActivity.GROUP_DESCRIPTION_KEY, item.second.getDescription());
+                    intent.putExtra(GroupDetailsActivity.GROUP_LONGITUDE_KEY, item.second.getLongtitude());
+                    intent.putExtra(GroupDetailsActivity.GROUP_LATITUDE_KEY, item.second.getLatitude());
                     startActivity(intent);
                 })
         ));
@@ -92,7 +100,7 @@ public class MainActivity extends ActivMatchActivity {
         // Request Location permission
         ActivMatchPermissions.requestLocationPermission(this);
 
-        MatchmoreSDK matchmore = Matchmore.getInstance();
+        matchmore = Matchmore.getInstance();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -106,18 +114,28 @@ public class MainActivity extends ActivMatchActivity {
         super.onDestroy();
         recyclerView.setAdapter(null);
         recyclerView.removeAllViews();
+        handler.removeCallbacksAndMessages(null);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         refreshLayout.setRefreshing(false);
+        handler.removeCallbacksAndMessages(null);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         updateDisplay();
+
+        int delay = 1000; // 1s
+        handler.postDelayed(new Runnable(){
+            public void run(){
+                pollForNewMatches();
+                handler.postDelayed(this, delay);
+            }
+        }, delay);
     }
 
     @Override
@@ -130,14 +148,7 @@ public class MainActivity extends ActivMatchActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_status) {
-            toggleStatusView();
-            return true;
-        } else if (id == R.id.action_matches) {
-            Intent intent = new Intent(this, GroupResultActivity.class);
-            startActivity(intent);
-            return true;
-        } else if (id == R.id.action_search) {
+        if (id == R.id.action_search) {
             Intent intent = new Intent(this, SearchActivity.class);
             startActivity(intent);
             return true;
@@ -160,72 +171,76 @@ public class MainActivity extends ActivMatchActivity {
                     && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 matchmore.startUpdatingLocation();
                 matchmore.startRanging();
+            } else {
+                ActivMatchPermissions.requestLocationPermission(this);
             }
         }
     }
 
     private void updateDisplay() {
         refreshLayout.setRefreshing(true);
-        String userId = storage.getUser().getId();
-
         List<Pair<Integer, GroupHeading>> items = new ArrayList<>();
         GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
+        Set<GroupHeading> groups = getGroups();
+        List<GroupHeading> sortedGroups = groups.stream().sorted(Comparator.comparing(GroupHeading::getName)).collect(Collectors.toList());
 
-        List<GroupHeading> groups = service.getGroups(userId);
         //Small spacer
         items.add(new Pair<>(97, null));
-        if (groups.isEmpty()) {
+        if (sortedGroups.isEmpty()) {
             items.add(new Pair<>(99, createDummyGroupHeading(getString(R.string.no_group_result))));
         } else {
-            for (GroupHeading groupHeading : groups) {
-                items.add(new Pair<>(0, groupHeading));
+            for (GroupHeading g : sortedGroups) {
+                items.add(new Pair<>(0, g));
             }
+            displayedGroups.addAll(groups);
         }
 
         //Big spacer
         items.add(new Pair<>(98, null));
-
         adapter.setItems(items);
         adapter.notifyDataSetChanged();
         refreshLayout.setRefreshing(false);
     }
 
-    private GroupHeading createDummyGroupHeading(String text) {
-        return new GroupHeading("", text, "");
+    private void pollForNewMatches() {
+        GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
+        Set<GroupHeading> groups = getGroups();
+        groups.removeAll(displayedGroups);
+        if (groups.isEmpty()) {
+            return;
+        }
+        List<GroupHeading> sortedGroups = groups.stream().sorted(Comparator.comparing(GroupHeading::getName)).collect(Collectors.toList());
+        if (adapter.getItemCount() == 3 && adapter.getItems().get(1).first == 99) {
+            adapter.onItemDismiss(1);
+        }
+        int length = adapter.getItemCount() - 1;
+        Log.d("MainActivity", "MainActivity: length" + length);
+        Log.d("MainActivity", "MainActivity: " + groups);
+        for (GroupHeading g : sortedGroups) {
+            adapter.onItemAdd(length, new Pair<>(0, g));
+            length++;
+            Log.d("MainActivity", "MainActivity: " + length);
+        }
+        adapter.onItemAdd(length, new Pair<>(98, null));
+        displayedGroups.addAll(groups);
     }
 
-    private void toggleStatusView() {
-        String userId = storage.getUser().getId();
-        UserStatus userStatus = service.getStatus(userId);
-        List<UserStatus> items = Arrays.asList(UserStatus.AVAILABLE, UserStatus.BUSY);
+    private Set<GroupHeading> getGroups() {
+        Set<String> groupsLeft = storage.getGroupsLeft();
+        Set<Match> matches = matchmore.getMatches();
+        Set<GroupHeading> groups = new HashSet<>();
+        for (Match m : matches) {
+            PublicationWithLocation p = m.getPublication();
+            if (groupsLeft.contains(p.getId())) {
+                continue;
+            }
+            groups.add(new GroupHeading(p.getId(), (String) p.getProperties().get("name"),
+                    (String) p.getProperties().get("description"), p.getLocation().getLatitude(), p.getLocation().getLongitude()));
+        }
+        return groups;
+    }
 
-        Holder<AlertDialog> holder = new Holder<>();
-        AlertDialog alertDialog = AlertDialogUtils.createDialog(
-                this,
-                getString(R.string.change_status),
-                items,
-                new CellView<>(
-                        ViewId.of(R.layout.dialog_cell),
-                        new int[] {R.id.dialog_text},
-                        (id, item, view) -> {
-                            if (id == R.id.dialog_text) {
-                                int textId = item == UserStatus.AVAILABLE ? R.string.status_available : R.string.status_busy;
-                                ((TextView) view).setText(textId);
-                                if (userStatus == item) {
-                                    ((TextView) view).setTypeface(((TextView) view).getTypeface(), Typeface.BOLD);
-                                } else {
-                                    ((TextView) view).setTypeface(((TextView) view).getTypeface(), Typeface.NORMAL);
-                                }
-                            }
-                        },
-                        (item, view) -> view.setOnClickListener(c -> {
-                            service.setStatus(userId, item);
-                            holder.value.dismiss();
-                        })
-                )
-        );
-        holder.value = alertDialog;
-        alertDialog.show();
-
+    private GroupHeading createDummyGroupHeading(String text) {
+        return new GroupHeading("", text, "", 0, 0);
     }
 }

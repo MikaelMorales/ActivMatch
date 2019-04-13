@@ -1,16 +1,16 @@
 package ch.unil.eda.activmatch.models;
 
+import android.support.annotation.NonNull;
+
 import java.util.Objects;
 
 public class User {
     private String mId;
     private String mName;
-    private UserStatus mStatus;
 
-    public User(String id, String name, UserStatus status) {
+    public User(String id, String name) {
         mId = id;
         mName = name;
-        mStatus = status;
     }
 
     public String getId() {
@@ -29,14 +29,6 @@ public class User {
         this.mName = mName;
     }
 
-    public UserStatus getStatus() {
-        return mStatus;
-    }
-
-    public void setStatus(UserStatus mStatus) {
-        this.mStatus = mStatus;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -48,15 +40,16 @@ public class User {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mId, mName, mStatus);
+        return Objects.hash(mId, mName);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "User{" +
                 "mId='" + mId + '\'' +
                 ", mName='" + mName + '\'' +
-                ", mStatus=" + mStatus +
+                ", mStatus=" +
                 '}';
     }
 }

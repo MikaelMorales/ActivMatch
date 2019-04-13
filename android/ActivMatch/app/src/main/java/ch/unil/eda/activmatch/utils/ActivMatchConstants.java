@@ -5,7 +5,9 @@ import android.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActivMatchRanges {
+public class ActivMatchConstants {
+    public static final double DURATION = 2.628 * Math.pow(10, 6);
+    public static final double RANGE = 1000;
     public static final List<Pair<String, Integer>> RANGES = new ArrayList<>();
     static {
         RANGES.add(new Pair<>("500 m", 500));

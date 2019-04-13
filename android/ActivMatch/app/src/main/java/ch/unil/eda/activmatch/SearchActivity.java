@@ -22,16 +22,14 @@ import com.jakewharton.rxbinding.widget.TextViewTextChangeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
-import ch.unil.eda.activmatch.models.GroupHeading;
 import ch.unil.eda.activmatch.ui.AlertDialogUtils;
 import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
+import ch.unil.eda.activmatch.utils.ActivMatchConstants;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
@@ -42,9 +40,6 @@ import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 
 public class SearchActivity extends ActivMatchActivity {
-    private static final double DURATION = 2.628 * Math.pow(10, 6);
-    private static final double RANGE = 1000;
-
     private rx.Subscription searchBarSubscription = null;
     private CustomSwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
@@ -76,9 +71,7 @@ public class SearchActivity extends ActivMatchActivity {
                     if (id == R.id.topic_error_message) {
                         ((TextView) view).setText(R.string.topic_error);
                     } else if (id == R.id.topic_subscribe_button) {
-                        view.setOnClickListener(c -> {
-                            onSubscribeClick(null, item.second);
-                        });
+                        view.setOnClickListener(c -> onSubscribeClick(null, item.second));
                     }
                 }
         ));
@@ -160,12 +153,7 @@ public class SearchActivity extends ActivMatchActivity {
     private void updateDisplay() {
         swipeRefreshLayout.setRefreshing(true);
         List<Pair<Integer, String>> items = new ArrayList<>();
-        List<GroupHeading> matchingGroups = service.getMatchingGroups(searchField.getText().toString());
-
-        Set<String> myGroups = storage.getGroupsId();
-        List<String> matchingTopics = matchingGroups.stream().filter(g -> !myGroups.contains(g.getGroupId()))
-                .map(GroupHeading::getName)
-                .collect(Collectors.toList());
+        List<String> matchingTopics = service.getMatchingTopics(searchField.getText().toString());
 
         if (matchingTopics.isEmpty()) {
             items.add(new Pair<>(0, searchField.getText().toString()));
@@ -192,7 +180,7 @@ public class SearchActivity extends ActivMatchActivity {
 
         GenericAdapter<Pair<Integer, String>> adapter = (GenericAdapter<Pair<Integer, String>>) recyclerView.getAdapter();
         matchmore.startUsingMainDevice(matchmore.getMain(), d -> {
-            Subscription subscription = new Subscription("ActivMatch", RANGE, DURATION);
+            Subscription subscription = new Subscription("ActivMatch", ActivMatchConstants.RANGE, ActivMatchConstants.DURATION);
             subscription.setSelector("name LIKE '" + topicName.toLowerCase()+"'");
 
             matchmore.createSubscriptionForMainDevice(subscription, createdSubscription -> {

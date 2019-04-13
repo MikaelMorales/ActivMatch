@@ -18,11 +18,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import ch.unil.eda.activmatch.GroupResultActivity;
+import ch.unil.eda.activmatch.MainActivity;
 import ch.unil.eda.activmatch.R;
-import ch.unil.eda.activmatch.io.ActivMatchService;
 import ch.unil.eda.activmatch.io.ActivMatchStorage;
-import ch.unil.eda.activmatch.io.MockStorage;
 
 public class ActivMatchNotificationService extends FirebaseMessagingService {
 
@@ -43,7 +41,7 @@ public class ActivMatchNotificationService extends FirebaseMessagingService {
             notificationManager.createNotificationChannel(defaultChannel);
         }
 
-        Intent intent = new Intent(this, GroupResultActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -68,13 +66,5 @@ public class ActivMatchNotificationService extends FirebaseMessagingService {
     @Override
     public void onDeletedMessages() {
         super.onDeletedMessages();
-    }
-
-    @Override
-    public void onNewToken(String s) {
-        super.onNewToken(s);
-        ActivMatchStorage storage = new ActivMatchStorage(getApplicationContext());
-        ActivMatchService service = new MockStorage(getApplicationContext());
-        service.updateUserToken(storage.getUser().getId(), s);
     }
 }

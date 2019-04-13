@@ -1,5 +1,5 @@
 <resources>
-    <string name="matchmore_api_key">eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhbHBzIiwic3ViIjoiZTUxMDYxMWItNzJjMi00MDE5LWE2M2YtZjc2MTNmMjdmNzg1IiwiYXVkIjpbIlB1YmxpYyJdLCJuYmYiOjE1NTQ4OTU3MTUsImlhdCI6MTU1NDg5NTcxNSwianRpIjoiMSJ9.eREMi1tJtwCWhfWhJOXdKE70G4VqaYIX17uZpZfKXQtVv98zLqgcB05pvd8Kbj_b0JA13y3y_fgKwPngMVUo-g</string>
+    <string name="matchmore_api_key">eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJhbHBzIiwic3ViIjoiNjRkOTdmNWEtNzgxNi00YWYyLTk3OWEtNTVkYTM3ZGEyMTBiIiwiYXVkIjpbIlB1YmxpYyJdLCJuYmYiOjE1NTUxNTY2MTgsImlhdCI6MTU1NTE1NjYxOCwianRpIjoiMSJ9.RthC0FJozrS6cPEsj8NBxCjfLwN38k_iLxXSGpu0-mN51pNaoTeRQOn23DIwlLBfSPtVEPbh6SbVtDXFae-WOA</string>
     <string name="app_name">ActivMatch</string>
     <string name="notifications_matches">New groups were found !</string>
 
@@ -11,8 +11,6 @@
 
     <!-- Main activity menu -->
     <string name="action_search">Search for groups</string>
-    <string name="action_status">Change your status</string>
-    <string name="action_matches">See your matches</string>
     <string name="action_settings">Settings</string>
 
     <!-- Group details activity menu -->
@@ -20,9 +18,6 @@
 
     <!-- Main activity -->
     <string name="no_group_result">No groups were found.</string>
-    <string name="change_status">Update your status</string>
-    <string name="status_available">Available</string>
-    <string name="status_busy">Busy</string>
 
     <!-- Settings activity -->
     <string name="settings_activity_title">Settings</string>
@@ -32,14 +27,9 @@
     <!-- Search activity -->
     <string name="activity_group_search_title">Subscribe to a topic</string>
     <string name="search_hint">Enter a topic name</string>
-    <string name="activity_subscribe_topic">Subscribe to topic</string>
     <string name="topic_sub_confirmation">Do you really want to subscribe to %s?</string>
-    <string name="topic_error">This topic does not exist or was created by you</string>
+    <string name="topic_error">This topic does not exist</string>
     <string name="subscribe_anyway">Subscribe anyway</string>
-
-    <!-- Join Group activity -->
-    <string name="join_group_search_title">Group nearby</string>
-    <string name="join_group">Join this group</string>
 
     <!-- Create group activity -->
     <string name="activity_create_group_title">Create a group</string>
@@ -50,15 +40,12 @@
     <string name="group_range_hint">Select a range</string>
     <string name="group_description_hint">Enter a description</string>
     <string name="error_fields_empty">Please fill all the fields</string>
+    <string name="error_location_unavailable">Could not retrieve your location</string>
 
     <!-- Group details activity -->
-    <string name="group_members_header">Members</string>
+    <string name="group_location_header">Location</string>
 
     <!-- Group Chat activity -->
     <string name="message_hint">Enter a message</string>
-
-    <!-- Group result activity -->
-    <string name="no_matches_found">No matches were found.</string>
-    <string name="group_result_activity_title">Your matches</string>
 
 </resources>

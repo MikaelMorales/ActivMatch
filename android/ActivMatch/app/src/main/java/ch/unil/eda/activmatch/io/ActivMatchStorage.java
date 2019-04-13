@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import ch.unil.eda.activmatch.models.User;
-import ch.unil.eda.activmatch.models.UserStatus;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -20,8 +19,8 @@ public class ActivMatchStorage {
 
     private static final String STORAGE_USER_ID = "STORAGE_USER_ID";
     private static final String STORAGE_USER_NAME = "STORAGE_USER_NAME";
-    private static final String STORAGE_USER_STATUS = "STORAGE_USER_STATUS";
     private static final String STORAGE_GROUPS_ID = "STORAGE_GROUPS_ID";
+    private static final String STORAGE_GROUPS_LEFT_ID = "STORAGE_GROUPS_LEFT_ID";
     private static final String STORAGE_MATCHES_ID = "STORAGE_MATCHES_ID";
     private static final String SETTINGS_NOTIFICATION_KEY = "SETTINGS_NOTIFICATION_KEY";
 
@@ -35,15 +34,13 @@ public class ActivMatchStorage {
         SharedPreferences.Editor editor = storage.edit();
         editor.putString(STORAGE_USER_ID, u.getId());
         editor.putString(STORAGE_USER_NAME, u.getName());
-        editor.putString(STORAGE_USER_STATUS, u.getStatus().name());
         editor.apply();
     }
 
     public User getUser() {
         String id = storage.getString(STORAGE_USER_ID, "");
         String name = storage.getString(STORAGE_USER_NAME, "");
-        String status = storage.getString(STORAGE_USER_STATUS, UserStatus.AVAILABLE.name());
-        return new User(id, name, UserStatus.valueOf(status));
+        return new User(id, name);
     }
 
     public Set<String> getGroupsId() {
@@ -66,10 +63,14 @@ public class ActivMatchStorage {
         return new HashSet<>(getStringList(STORAGE_MATCHES_ID, new ArrayList<>()));
     }
 
-    public void removeGroupId(String groupId) {
-        List<String> ids = getStringList(STORAGE_GROUPS_ID, new ArrayList<>());
-        ids.remove(groupId);
-        putStringList(STORAGE_GROUPS_ID, ids);
+    public void exitGroupId(String groupId) {
+        List<String> ids = getStringList(STORAGE_GROUPS_LEFT_ID, new ArrayList<>());
+        ids.add(groupId);
+        putStringList(STORAGE_GROUPS_LEFT_ID, ids);
+    }
+    public Set<String> getGroupsLeft() {
+        List<String> ids = getStringList(STORAGE_GROUPS_LEFT_ID, new ArrayList<>());
+        return new HashSet<>(ids);
     }
 
     public boolean areNotificationsEnabled() {

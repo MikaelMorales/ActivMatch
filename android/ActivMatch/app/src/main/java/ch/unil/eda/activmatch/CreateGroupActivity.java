@@ -1,6 +1,7 @@
 package ch.unil.eda.activmatch;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,7 +18,9 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Collections;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,12 +28,15 @@ import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.ViewId;
 import ch.unil.eda.activmatch.models.Group;
 import ch.unil.eda.activmatch.ui.AlertDialogUtils;
+import ch.unil.eda.activmatch.utils.ActivMatchConstants;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
-import ch.unil.eda.activmatch.utils.ActivMatchRanges;
 import ch.unil.eda.activmatch.utils.Holder;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
+import io.matchmore.sdk.api.models.MatchmoreLocation;
+import io.matchmore.sdk.api.models.PinDevice;
 import io.matchmore.sdk.api.models.Publication;
+import io.matchmore.sdk.api.models.Subscription;
 import kotlin.Unit;
 
 public class CreateGroupActivity extends ActivMatchActivity {
@@ -40,6 +46,8 @@ public class CreateGroupActivity extends ActivMatchActivity {
     private MaterialButton rangeButton;
     private TextInputEditText groupDescription;
     private TextInputEditText groupName;
+    private FusedLocationProviderClient mFusedLocationClient;
+
 
     private MatchmoreSDK matchmore;
 
@@ -52,6 +60,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
         matchmore = Matchmore.getInstance();
 
         rangeButton = findViewById(R.id.group_range);
@@ -80,7 +89,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
             if (range == null || description == null || name == null || description.toString().isEmpty() || name.toString().isEmpty()) {
                 AlertDialogUtils.alert(this, getString(R.string.error_fields_empty), null);
             } else {
-                Group group = new Group("", name.toString(), description.toString(), storage.getUser(), Collections.singletonList(storage.getUser()));
+                Group group = new Group("", name.toString(), description.toString());
                 publishTopic(group, range);
             }
             return true;
@@ -107,10 +116,10 @@ public class CreateGroupActivity extends ActivMatchActivity {
         AlertDialog alertDialog = AlertDialogUtils.createDialog(
                 this,
                 getString(R.string.group_range_hint),
-                ActivMatchRanges.RANGES,
+                ActivMatchConstants.RANGES,
                 new CellView<>(
                         ViewId.of(R.layout.dialog_cell),
-                        new int[] {R.id.dialog_text},
+                        new int[]{R.id.dialog_text},
                         (id, item, view) -> {
                             if (id == R.id.dialog_text) {
                                 ((TextView) view).setText(item.first);
@@ -127,6 +136,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
         alertDialog.show();
     }
 
+    @SuppressLint("MissingPermission")
     private void publishTopic(Group group, Integer range) {
         ActivMatchPermissions.requestLocationPermission(this);
         if (!ActivMatchPermissions.hasLocationPermission(this)) {
@@ -142,29 +152,67 @@ public class CreateGroupActivity extends ActivMatchActivity {
         properties.put("range", String.valueOf(range));
         properties.put("description", group.getDescription());
 
-        matchmore.startUsingMainDevice(matchmore.getMain(), device -> {
-            Publication publication = new Publication("ActivMatch", range.doubleValue(), 3.154 * Math.pow(10, 7));
-            publication.setProperties(properties);
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+            // Got last known location. In some rare situations this can be null.
+            if (location != null) {
+                matchmore.startUsingMainDevice(matchmore.getMain(), device -> {
+                    Publication publication = new Publication("ActivMatch", range.doubleValue(), 3.154 * Math.pow(10, 7));
+                    publication.setProperties(properties);
 
-            matchmore.createPublicationForMainDevice(publication, createdPublication -> {
-                alertDialog.dismiss();
-                group.setGroupId(createdPublication.getId());
-                service.createGroup(group);
-                storage.addGroupId(group.getGroupId());
+                    PinDevice pinDevice = new PinDevice(group.getName(), new MatchmoreLocation(location.getLatitude(), location.getLongitude(), location.getAltitude()));
+                    matchmore.createPinDevice(pinDevice, pin -> {
+                        matchmore.createPublication(publication, pin.getId(), p -> {
+                            group.setGroupId(p.getId());
+                            storage.addGroupId(p.getId());
+                            service.createGroup(group);
+                            subscribeToTopic(alertDialog, group);
+                            return Unit.INSTANCE;
+                        }, error -> {
+                            alertDialog.dismiss();
+                            Log.e(TAG, error.getMessage());
+                            showErrorRetrySnackBar(() -> publishTopic(group, range));
+                            return Unit.INSTANCE;
+                        });
+                        return Unit.INSTANCE;
+                    }, e -> {
+                        alertDialog.dismiss();
+                        Log.e(TAG, e.getMessage());
+                        showErrorRetrySnackBar(() -> publishTopic(group, range));
+                        return Unit.INSTANCE;
+                    });
+
+                    return Unit.INSTANCE;
+                }, e -> {
+                    alertDialog.dismiss();
+                    Log.e(TAG, e.getMessage());
+                    showErrorRetrySnackBar(() -> publishTopic(group, range));
+                    return Unit.INSTANCE;
+                });
+            } else {
+                showErrorSnackBar(getString(R.string.error_location_unavailable));
+            }
+        });
+    }
+
+    private void subscribeToTopic(AlertDialog dialog, Group group) {
+        matchmore.startUsingMainDevice(matchmore.getMain(), d -> {
+            Subscription subscription = new Subscription("ActivMatch", ActivMatchConstants.RANGE, ActivMatchConstants.DURATION);
+            subscription.setSelector("name LIKE '" + group.getName().toLowerCase()+"'");
+
+            matchmore.createSubscriptionForMainDevice(subscription, createdSubscription -> {
+                dialog.dismiss();
                 finish();
                 return Unit.INSTANCE;
             }, e -> {
-                alertDialog.dismiss();
-                Log.e(TAG, e.getMessage());
-                showErrorRetrySnackBar(() -> publishTopic(group, range));
+                dialog.dismiss();
+                showErrorSnackBar(getString(R.string.error));
                 return Unit.INSTANCE;
             });
 
             return Unit.INSTANCE;
         }, e -> {
-            alertDialog.dismiss();
-            Log.e(TAG, e.getMessage());
-            showErrorRetrySnackBar(() -> publishTopic(group, range));
+            dialog.dismiss();
+            showErrorSnackBar(getString(R.string.error));
             return Unit.INSTANCE;
         });
     }

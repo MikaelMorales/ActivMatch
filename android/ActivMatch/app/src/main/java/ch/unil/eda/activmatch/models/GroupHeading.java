@@ -9,11 +9,15 @@ public class GroupHeading {
     private String mGroupId;
     private String mName;
     private String mDescription;
+    private double mLatitude;
+    private double mLongtitude;
 
-    public GroupHeading(String groupId, String name, String description) {
+    public GroupHeading(String groupId, String name, String description, double latitude, double longitude) {
         mGroupId = groupId;
         mName = name;
         mDescription = description;
+        mLatitude = latitude;
+        mLongtitude = longitude;
     }
 
     @NonNull
@@ -43,6 +47,22 @@ public class GroupHeading {
         this.mDescription = description;
     }
 
+    public double getLatitude() {
+        return mLatitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.mLatitude = latitude;
+    }
+
+    public double getLongtitude() {
+        return mLongtitude;
+    }
+
+    public void setLongtitude(double longtitude) {
+        this.mLongtitude = longtitude;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -55,7 +75,6 @@ public class GroupHeading {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(mGroupId, mName, mDescription);
     }
 }

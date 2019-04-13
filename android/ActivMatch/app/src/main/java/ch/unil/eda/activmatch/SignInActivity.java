@@ -15,8 +15,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
 import ch.unil.eda.activmatch.models.User;
-import ch.unil.eda.activmatch.models.UserStatus;
-import io.matchmore.sdk.Matchmore;
 
 public class SignInActivity extends ActivMatchActivity {
 
@@ -119,6 +117,6 @@ public class SignInActivity extends ActivMatchActivity {
     }
 
     private User accountToUser(final GoogleSignInAccount a) {
-        return new User(a.getId(), a.getDisplayName(), UserStatus.AVAILABLE);
+        return new User(a.getId(), a.getDisplayName());
     }
 }
