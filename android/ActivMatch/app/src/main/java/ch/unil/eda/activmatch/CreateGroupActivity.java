@@ -137,7 +137,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
             // Got last known location. In some rare situations this can be null.
             if (location != null) {
                 matchmore.startUsingMainDevice(matchmore.getMain(), device -> {
-                    Publication publication = new Publication("ActivMatch", range.doubleValue(), 3.154 * Math.pow(10, 7));
+                    Publication publication = new Publication("ActivMatch", range.doubleValue(), ActivMatchConstants.DURATION);
                     publication.setProperties(properties);
 
                     PinDevice pinDevice = new PinDevice(group.getName(),
