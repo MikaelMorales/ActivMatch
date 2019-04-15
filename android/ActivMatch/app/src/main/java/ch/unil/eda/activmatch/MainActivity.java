@@ -112,6 +112,7 @@ public class MainActivity extends ActivMatchActivity {
         }
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -174,7 +175,7 @@ public class MainActivity extends ActivMatchActivity {
                 matchmore.startUpdatingLocation(new LocationProvider());
                 matchmore.startRanging();
             } else {
-                finishAffinity();
+                finish();
             }
         }
     }

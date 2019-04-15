@@ -83,6 +83,7 @@ public class ActivMatchStorage {
         editor.apply();
     }
 
+    /** Utility methods **/
     private List<String> getStringList(String key, List<String> ifNotFound) {
         int length = storage.getInt(key + "_length", -1);
         if (length == -1)
