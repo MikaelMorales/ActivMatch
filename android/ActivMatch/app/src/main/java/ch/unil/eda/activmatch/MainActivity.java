@@ -32,7 +32,6 @@ import ch.unil.eda.activmatch.adapter.CellView;
 import ch.unil.eda.activmatch.adapter.GenericAdapter;
 import ch.unil.eda.activmatch.adapter.ViewId;
 import ch.unil.eda.activmatch.models.GroupHeading;
-import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
 import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
@@ -44,7 +43,6 @@ import io.matchmore.sdk.managers.MatchmoreLocationProvider;
 
 public class MainActivity extends ActivMatchActivity {
 
-    private CustomSwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
     private MatchmoreSDK matchmore;
     private Handler handler = new Handler();
@@ -58,18 +56,15 @@ public class MainActivity extends ActivMatchActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+
         FloatingActionButton createGroup = findViewById(R.id.fab_create_group);
         createGroup.setOnClickListener(c -> {
             Intent intent = new Intent(this, CreateGroupActivity.class);
             startActivity(intent);
         });
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
 
-        refreshLayout = findViewById(R.id.swipe_refresh_layout);
-        recyclerView = new RecyclerView(getApplicationContext());
-        refreshLayout.addView(recyclerView);
-        refreshLayout.setOnRefreshListener(this::updateDisplay);
-
+        recyclerView = findViewById(R.id.recycler_view);
         GenericAdapter<Pair<Integer, GroupHeading>> adapter = new GenericAdapter<>(new CellView<>(
                 ViewId.of(R.layout.group_simple_card),
                 new int[]{R.id.group_name},
@@ -98,8 +93,7 @@ public class MainActivity extends ActivMatchActivity {
         ));
 
         adapter.setCellDefinerForType(99, new CellView<>(
-                ViewId.of(R.layout.simple_error_cell),
-                (item, view) -> ((TextView) view).setText(item.second.getName())
+                ViewId.of(R.layout.scanning_groups_cell)
         ));
 
         adapter.setViewTypeMapper(p -> p.first);
@@ -129,7 +123,6 @@ public class MainActivity extends ActivMatchActivity {
     @Override
     public void onPause() {
         super.onPause();
-        refreshLayout.setRefreshing(false);
         handler.removeCallbacksAndMessages(null);
     }
 
@@ -187,7 +180,6 @@ public class MainActivity extends ActivMatchActivity {
     }
 
     private void updateDisplay() {
-        refreshLayout.setRefreshing(true);
         List<Pair<Integer, GroupHeading>> items = new ArrayList<>();
         GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
         Set<GroupHeading> groups = getGroups();
@@ -196,7 +188,7 @@ public class MainActivity extends ActivMatchActivity {
         //Small spacer
         items.add(new Pair<>(97, null));
         if (sortedGroups.isEmpty()) {
-            items.add(new Pair<>(99, createDummyGroupHeading(getString(R.string.no_group_result))));
+            items.add(new Pair<>(99, null));
         } else {
             for (GroupHeading g : sortedGroups) {
                 items.add(new Pair<>(0, g));
@@ -208,7 +200,6 @@ public class MainActivity extends ActivMatchActivity {
         items.add(new Pair<>(98, null));
         adapter.setItems(items);
         adapter.notifyDataSetChanged();
-        refreshLayout.setRefreshing(false);
     }
 
     private void pollForNewMatches() {
@@ -244,10 +235,6 @@ public class MainActivity extends ActivMatchActivity {
                     (String) p.getProperties().get("description"), p.getLocation().getLatitude(), p.getLocation().getLongitude()));
         }
         return groups;
-    }
-
-    private GroupHeading createDummyGroupHeading(String text) {
-        return new GroupHeading("", text, "", 0, 0);
     }
 
     private class LocationProvider implements MatchmoreLocationProvider {

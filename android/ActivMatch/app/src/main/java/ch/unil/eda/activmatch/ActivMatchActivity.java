@@ -105,6 +105,7 @@ public class ActivMatchActivity extends AppCompatActivity {
         if (!storage.areNotificationsEnabled()) {
             return;
         }
+
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 

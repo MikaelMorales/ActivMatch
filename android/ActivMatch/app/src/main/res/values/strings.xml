@@ -17,7 +17,7 @@ git
     <string name="action_quit">Quit the group</string>
 
     <!-- Main activity -->
-    <string name="no_group_result">No groups were found.</string>
+    <string name="groups_scanning">Looking for nearby groups</string>
 
     <!-- Settings activity -->
     <string name="settings_activity_title">Settings</string>

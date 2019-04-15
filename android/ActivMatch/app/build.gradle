@@ -42,6 +42,7 @@ dependencies {
     implementation 'com.github.matchmore.alps-android-sdk:sdk:0.7.2'
     implementation 'com.github.matchmore.alps-android-sdk:rx:0.7.2'
     implementation 'com.google.firebase:firebase-messaging:17.4.0'
+    implementation 'com.eyalbira.loadingdots:loading-dots:1.0.2'
     testImplementation 'junit:junit:4.12'
 }
 
