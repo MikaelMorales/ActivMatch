@@ -1,37 +1,24 @@
 package ch.unil.eda.activmatch.entity;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 
 @Entity(name="GROUP_")
 public class Group implements Serializable {
     
     @Id
-    @GeneratedValue
-    private Long id;
- 
+    private String id;
+    
     private String name;
     
     private String description;
-    
-    @ManyToOne
-    private User creator;
-    
-    @ManyToMany(fetch=FetchType.EAGER)
-    private List<User> members = new ArrayList<>();
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -49,21 +36,5 @@ public class Group implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public User getCreator() {
-        return creator;
-    }
-
-    public void setCreator(User creator) {
-        this.creator = creator;
-    }
-
-    public List<User> getMembers() {
-        return members;
-    }
-
-    public void setMembers(List<User> members) {
-        this.members = members;
     }
 }
