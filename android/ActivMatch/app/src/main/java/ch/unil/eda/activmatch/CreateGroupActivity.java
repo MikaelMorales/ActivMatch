@@ -171,6 +171,7 @@ public class CreateGroupActivity extends ActivMatchActivity {
                     return Unit.INSTANCE;
                 });
             } else {
+                alertDialog.dismiss();
                 showErrorSnackBar(getString(R.string.error_location_unavailable));
             }
         });

@@ -3,6 +3,7 @@ package ch.unil.eda.activmatch;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,8 +48,8 @@ public class MainActivity extends ActivMatchActivity {
     private RecyclerView recyclerView;
     private MatchmoreSDK matchmore;
     private Handler handler = new Handler();
-    private Set<GroupHeading> displayedGroups = new HashSet<>();
     private FusedLocationProviderClient mFusedLocationClient;
+    private Location mLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,7 +134,7 @@ public class MainActivity extends ActivMatchActivity {
         super.onResume();
         updateDisplay();
 
-        int delay = 1000; // 1s
+        int delay = 5000; // 1s
         handler.postDelayed(new Runnable() {
             public void run() {
                 pollForNewMatches();
@@ -194,7 +196,6 @@ public class MainActivity extends ActivMatchActivity {
             for (GroupHeading g : sortedGroups) {
                 items.add(new Pair<>(0, g));
             }
-            displayedGroups.addAll(groups);
         }
 
         //Big spacer
@@ -206,21 +207,36 @@ public class MainActivity extends ActivMatchActivity {
     private void pollForNewMatches() {
         GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
         Set<GroupHeading> groups = getGroups();
-        groups.removeAll(displayedGroups);
         if (groups.isEmpty()) {
+            List<Pair<Integer, GroupHeading>> items = new ArrayList<>();
+            items.add(new Pair<>(97, null));
+            items.add(new Pair<>(99, null));
+            items.add(new Pair<>(98, null));
+            adapter.setItems(items);
+            adapter.notifyDataSetChanged();
             return;
         }
+
+        List<Pair<Integer, GroupHeading>> displayedItems = adapter.getItems();
+        for (int i = 0; i < displayedItems.size(); i++) {
+            if (displayedItems.get(i).first == 0 && !groups.contains(displayedItems.get(i).second)) {
+                adapter.onItemDismiss(i);
+            }
+        }
+        Set<GroupHeading> displayed = adapter.getItems().stream().map(s -> s.second).filter(Objects::nonNull).collect(Collectors.toSet());
         List<GroupHeading> sortedGroups = groups.stream().sorted(Comparator.comparing(GroupHeading::getName)).collect(Collectors.toList());
         if (adapter.getItemCount() == 3 && adapter.getItems().get(1).first == 99) {
             adapter.onItemDismiss(1);
         }
-        int length = adapter.getItemCount() - 1;
+        adapter.onItemDismiss(adapter.getItemCount() - 1);
+        int length = adapter.getItemCount();
         for (GroupHeading g : sortedGroups) {
-            adapter.onItemAdd(length, new Pair<>(0, g));
-            length++;
+            if (!displayed.contains(g)) {
+                adapter.onItemAdd(length, new Pair<>(0, g));
+                length++;
+            }
         }
         adapter.onItemAdd(length, new Pair<>(98, null));
-        displayedGroups.addAll(groups);
     }
 
     private Set<GroupHeading> getGroups() {
@@ -229,13 +245,28 @@ public class MainActivity extends ActivMatchActivity {
         Set<GroupHeading> groups = new HashSet<>();
         for (Match m : matches) {
             PublicationWithLocation p = m.getPublication();
-            if (groupsLeft.contains(p.getId())) {
+            if (groupsLeft.contains(p.getId()) || !isInRange(m)) {
                 continue;
             }
             groups.add(new GroupHeading(p.getId(), (String) p.getProperties().get("name"),
                     (String) p.getProperties().get("description"), p.getLocation().getLatitude(), p.getLocation().getLongitude()));
         }
         return groups;
+    }
+
+    private boolean isInRange(Match m) {
+        if (mLocation == null) {
+            return false;
+        }
+
+        Location publication = new Location("publication");
+        PublicationWithLocation p = m.getPublication();
+        publication.setLongitude(p.getLocation().getLongitude());
+        publication.setLatitude(p.getLocation().getLatitude());
+        publication.setAltitude(p.getLocation().getAltitude());
+
+
+        return publication.distanceTo(mLocation) < (p.getRange() + m.getSubscription().getRange());
     }
 
     private class LocationProvider implements MatchmoreLocationProvider {
@@ -248,6 +279,7 @@ public class MainActivity extends ActivMatchActivity {
             }
             mFusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
                 if (location != null) {
+                    mLocation = location;
                     locationSender.sendLocation(new MatchmoreLocation(location.getLatitude(),
                             location.getLongitude(), location.getAltitude()));
                 }
@@ -255,6 +287,6 @@ public class MainActivity extends ActivMatchActivity {
         }
 
         @Override
-        public void stopUpdatingLocation() { }
+        public void stopUpdatingLocation() {}
     }
 }
