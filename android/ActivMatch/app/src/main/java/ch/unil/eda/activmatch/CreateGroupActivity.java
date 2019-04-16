@@ -183,8 +183,8 @@ public class CreateGroupActivity extends ActivMatchActivity {
             subscription.setSelector("name LIKE '" + group.getName().toLowerCase()+"'");
 
             matchmore.createSubscriptionForMainDevice(subscription, createdSubscription -> {
-                dialog.dismiss();
-                finish();
+                storage.addGroupId(group.getGroupId());
+                createGroup(dialog, group);
                 return Unit.INSTANCE;
             }, e -> {
                 dialog.dismiss();
@@ -198,5 +198,17 @@ public class CreateGroupActivity extends ActivMatchActivity {
             showErrorSnackBar(getString(R.string.error));
             return Unit.INSTANCE;
         });
+    }
+
+    private void createGroup(AlertDialog dialog, Group group) {
+        sendRequest(service.createGroup(group),
+                g -> {
+                    dialog.dismiss();
+                    finish();
+                },
+                () -> {
+                    dialog.dismiss();
+                    showErrorSnackBar(getString(R.string.error));
+                });
     }
 }

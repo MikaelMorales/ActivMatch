@@ -2,10 +2,17 @@ package ch.unil.eda.activmatch.models;
 
 import android.support.annotation.NonNull;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Objects;
 
 public class User {
+    @Expose
+    @SerializedName("id")
     private String mId;
+    @Expose
+    @SerializedName("name")
     private String mName;
 
     public User(String id, String name) {
