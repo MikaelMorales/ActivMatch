@@ -10,6 +10,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
@@ -18,24 +19,27 @@ import android.view.MenuItem;
 import android.view.View;
 
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import ch.unil.eda.activmatch.io.ActivMatchService;
 import ch.unil.eda.activmatch.io.ActivMatchStorage;
-import ch.unil.eda.activmatch.io.MockStorage;
+import ch.unil.eda.activmatch.io.WebServices;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
 import kotlin.Unit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ActivMatchActivity extends AppCompatActivity {
-    ActivMatchService service;
+    WebServices service;
     ActivMatchStorage storage;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        service = new MockStorage(getApplicationContext());
+        service = new WebServices();
         storage = new ActivMatchStorage(getApplicationContext());
 
         // Configuration of api key/world id
@@ -75,6 +79,23 @@ public class ActivMatchActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    protected <T> void sendRequest(Call<T> service, Consumer<T> onSucess, Runnable onError) {
+        service.enqueue(new Callback<T>() {
+            @Override
+            public void onResponse(@NonNull Call<T> call, @NonNull Response<T> response) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    showErrorRetrySnackBar(onError);
+                }
+                onSucess.accept(response.body());
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<T> call, @NonNull Throwable t) {
+                onError.run();
+            }
+        });
     }
 
     protected void showErrorRetrySnackBar(Runnable retry) {

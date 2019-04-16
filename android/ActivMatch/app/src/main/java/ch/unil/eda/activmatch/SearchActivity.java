@@ -132,22 +132,28 @@ public class SearchActivity extends ActivMatchActivity {
 
     private void updateDisplay() {
         swipeRefreshLayout.setRefreshing(true);
-        List<Pair<Integer, String>> items = new ArrayList<>();
-        List<String> matchingTopics = service.getMatchingTopics(searchField.getText().toString());
+        sendRequest(service.getMatchingTopics(searchField.getText().toString()),
+                matchingTopics -> {
+                    List<Pair<Integer, String>> items = new ArrayList<>();
+                    if (matchingTopics.isEmpty()) {
+                        items.add(new Pair<>(0, searchField.getText().toString()));
+                    } else {
+                        items.add(new Pair<>(99, null));
+                        for (String s : matchingTopics) {
+                            items.add(new Pair<>(1, s));
+                        }
+                    }
 
-        if (matchingTopics.isEmpty()) {
-            items.add(new Pair<>(0, searchField.getText().toString()));
-        } else {
-            items.add(new Pair<>(99, null));
-            for (String s : matchingTopics) {
-                items.add(new Pair<>(1, s));
-            }
-        }
-
-        GenericAdapter<Pair<Integer, String>> adapter = (GenericAdapter<Pair<Integer, String>>) recyclerView.getAdapter();
-        adapter.setItems(items);
-        adapter.notifyDataSetChanged();
-        swipeRefreshLayout.setRefreshing(false);
+                    GenericAdapter<Pair<Integer, String>> adapter = (GenericAdapter<Pair<Integer, String>>) recyclerView.getAdapter();
+                    adapter.setItems(items);
+                    adapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
+                },
+                () -> {
+                    swipeRefreshLayout.setRefreshing(false);
+                    showErrorRetrySnackBar(this::updateDisplay);
+                }
+        );
     }
 
     private void onSubscribeClick(@Nullable View v, String topicName) {

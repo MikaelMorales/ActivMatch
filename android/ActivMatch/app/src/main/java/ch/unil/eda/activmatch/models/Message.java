@@ -1,10 +1,23 @@
 package ch.unil.eda.activmatch.models;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Message {
+    @Expose
+    @SerializedName("id")
     private String mMessageId;
+    @Expose
+    @SerializedName("group")
     private String mGroupId;
+    @Expose
+    @SerializedName("text")
     private String mText;
+    @Expose
+    @SerializedName("creator")
     private User mCreator;
+    @Expose
+    @SerializedName("date")
     private String mDate;
 
     public Message(String messageId, String groupId, String date, String text, User creator) {
