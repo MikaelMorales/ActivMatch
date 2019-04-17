@@ -10,11 +10,11 @@
     <string name="error_location">Location is needed to use the app</string>
 
     <!-- Main activity menu -->
-    <string name="action_search">Search for groups</string>
+    <string name="action_search">Search for topics</string>
     <string name="action_settings">Settings</string>
 
     <!-- Group details activity menu -->
-    <string name="action_quit">Quit the group</string>
+    <string name="action_quit">Hide this group</string>
 
     <!-- Main activity -->
     <string name="groups_scanning">Looking for nearby groups</string>
@@ -23,20 +23,19 @@
     <string name="settings_activity_title">Settings</string>
     <string name="settings_activity_notifications">Enable notifications</string>
 
-
     <!-- Search activity -->
     <string name="activity_group_search_title">Subscribe to a topic</string>
     <string name="search_hint">Enter a topic name</string>
     <string name="topic_sub_confirmation">Do you really want to subscribe to %s?</string>
-    <string name="topic_error">This topic does not exist</string>
+    <string name="topic_error">This topic does not exist yet</string>
     <string name="subscribe_anyway">Subscribe anyway</string>
 
     <!-- Create group activity -->
     <string name="activity_create_group_title">Create a group</string>
-    <string name="group_name_header">Name</string>
+    <string name="group_name_header">Topic</string>
     <string name="group_range_header">Range</string>
     <string name="group_description_header">Description</string>
-    <string name="group_name_hint">Enter a group name</string>
+    <string name="group_name_hint">Enter a group topic</string>
     <string name="group_range_hint">Select a range</string>
     <string name="group_description_hint">Enter a description</string>
     <string name="error_fields_empty">Please fill all the fields</string>

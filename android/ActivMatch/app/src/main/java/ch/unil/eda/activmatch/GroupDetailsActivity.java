@@ -3,6 +3,7 @@ package ch.unil.eda.activmatch;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.util.Pair;
@@ -82,6 +83,19 @@ public class GroupDetailsActivity extends ActivMatchActivity {
                 (item, view) -> ((TextView) view).setText(item.second)
         ));
 
+        adapter.setCellDefinerForType(2, new CellView<>(
+                ViewId.of(R.layout.clickable_simple_text_cell),
+                (item, view) -> {
+                    ((TextView) view).setText(item.second);
+                    view.setOnClickListener(c -> {
+                        Intent intent = new Intent(Intent.ACTION_VIEW,
+                                Uri.parse("https://www.google.com/maps/search/?api=1&query="
+                                        + latitude + "," + longitude));
+                        startActivity(intent);
+                    });
+                }
+        ));
+
         adapter.setCellDefinerForType(98, new CellView<>(
                 ViewId.of(R.layout.big_spacer_cell)
         ));
@@ -154,7 +168,7 @@ public class GroupDetailsActivity extends ActivMatchActivity {
         items.add(new Pair<>(1, groupDescription));
         if (address.isPresent()) {
             items.add(new Pair<>(0, getString(R.string.group_location_header)));
-            items.add(new Pair<>(1, address.get()));
+            items.add(new Pair<>(2, address.get()));
         }
         items.add(new Pair<>(98, null));
 
