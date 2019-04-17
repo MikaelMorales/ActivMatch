@@ -142,46 +142,54 @@ public class GroupChatActivity extends ActivMatchActivity {
     private void getMessages() {
         refreshLayout.setRefreshing(true);
         User user = storage.getUser();
-        List<Message> messages = service.getMessages(groupId);
-        List<Pair<Integer, Message>> items = new ArrayList<>();
-
-        for (Message message : messages) {
-            int cellType = message.getCreator().equals(user) ? 1 : 0;
-            items.add(new Pair<>(cellType, message));
-        }
-        GenericAdapter<Pair<Integer, Message>> adapter = (GenericAdapter<Pair<Integer, Message>>) recyclerView.getAdapter();
-        adapter.setItems(items);
-        adapter.notifyDataSetChanged();
-        recyclerView.scrollToPosition(items.size()-1);
-        refreshLayout.setRefreshing(false);
+        sendRequest(service.getMessages(groupId),
+                messages -> {
+                    List<Pair<Integer, Message>> items = new ArrayList<>();
+                    for (Message message : messages) {
+                        int cellType = message.getCreator().equals(user) ? 1 : 0;
+                        items.add(new Pair<>(cellType, message));
+                    }
+                    GenericAdapter<Pair<Integer, Message>> adapter = (GenericAdapter<Pair<Integer, Message>>) recyclerView.getAdapter();
+                    adapter.setItems(items);
+                    adapter.notifyDataSetChanged();
+                    recyclerView.scrollToPosition(items.size()-1);
+                    refreshLayout.setRefreshing(false);
+                },
+                () -> {
+                    refreshLayout.setRefreshing(false);
+                    showErrorRetrySnackBar(this::getMessages);
+                });
     }
 
     private void pollForNewMessages() {
-        GenericAdapter<Pair<Integer, Message>> adapter = (GenericAdapter<Pair<Integer, Message>>) recyclerView.getAdapter();
-        List<Message> messages = service.getMessages(groupId);
-        int currentLength = adapter.getItems().size();
+        sendRequest(service.getMessages(groupId),
+                messages -> {
+                    GenericAdapter<Pair<Integer, Message>> adapter = (GenericAdapter<Pair<Integer, Message>>) recyclerView.getAdapter();
+                    int currentLength = adapter.getItems().size();
 
-        for (int i=currentLength; i < messages.size(); i++)
-            adapter.onItemAdd(i, new Pair<>(0, messages.get(i)));
+                    for (int i=currentLength; i < messages.size(); i++)
+                        adapter.onItemAdd(i, new Pair<>(0, messages.get(i)));
 
-        if (reachedBottom)
-            recyclerView.scrollToPosition(adapter.getItems().size() - 1);
+                    if (reachedBottom)
+                        recyclerView.scrollToPosition(adapter.getItems().size() - 1);
+                },
+                () -> showErrorRetrySnackBar(null));
     }
 
     private void sendMessage() {
-        GenericAdapter<Pair<Integer, Message>> adapter = (GenericAdapter<Pair<Integer, Message>>) recyclerView.getAdapter();
-        int length = adapter.getItems().size();
-
         String text = message.getText().toString();
         User user = storage.getUser();
         String date = dateFormat.format(new Date());
         Message value = new Message("", groupId, date, text, user);
-        service.sendMessage(value);
-
-        adapter.onItemAdd(length, new Pair<>(1, value));
-        recyclerView.scrollToPosition(length);
-
-        message.setText("");
+        sendRequest(service.sendMessage(value),
+                m -> {
+                    GenericAdapter<Pair<Integer, Message>> adapter = (GenericAdapter<Pair<Integer, Message>>) recyclerView.getAdapter();
+                    int length = adapter.getItems().size();
+                    adapter.onItemAdd(length, new Pair<>(1, value));
+                    recyclerView.scrollToPosition(length);
+                    message.setText("");
+                },
+                () -> showErrorRetrySnackBar(this::sendMessage));
     }
 
     private static int getNameTint(String userName) {

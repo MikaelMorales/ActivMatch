@@ -1,18 +1,19 @@
 package ch.unil.eda.activmatch.io;
 
+import ch.unil.eda.activmatch.BuildConfig;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class RetrofitClient {
+class RetrofitClient {
     private static Retrofit serverInstance;
 
-    public static Retrofit getRetrofitInstance() {
+    static ActivMatchServices getRetrofitInstance() {
         if (serverInstance == null) {
             serverInstance = new Retrofit.Builder()
-                    .baseUrl("")
+                    .baseUrl(BuildConfig.ServerUrl)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
-        return serverInstance;
+        return serverInstance.create(ActivMatchServices.class);
     }
 }

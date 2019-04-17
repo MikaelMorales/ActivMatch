@@ -4,6 +4,10 @@ import android.support.annotation.NonNull;
 
 import java.util.Objects;
 
+/**
+ * Utility class used in the client to display matches. This can be modified without any side effects
+ * on the webservices.
+ */
 public class GroupHeading {
 
     private String mGroupId;

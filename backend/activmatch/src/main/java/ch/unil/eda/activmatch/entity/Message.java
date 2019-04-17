@@ -3,7 +3,7 @@ package ch.unil.eda.activmatch.entity;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
@@ -11,24 +11,23 @@ import javax.persistence.ManyToOne;
 public class Message implements Serializable {
     
     @Id
-    @GeneratedValue
-    private Long id;
+    private String id;
     
     private String text;
     
     private Date date;
     
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.EAGER)
     private User creator;
     
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.EAGER)
     private Group group;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
