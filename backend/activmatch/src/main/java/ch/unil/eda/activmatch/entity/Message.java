@@ -4,30 +4,32 @@ import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 @Entity
 public class Message implements Serializable {
-    
+
     @Id
-    private String id;
-    
+    @GeneratedValue
+    private Long id;
+
     private String text;
-    
+
     private Date date;
-    
+
     @ManyToOne(fetch=FetchType.EAGER)
     private User creator;
-    
+
     @ManyToOne(fetch=FetchType.EAGER)
     private Group group;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
