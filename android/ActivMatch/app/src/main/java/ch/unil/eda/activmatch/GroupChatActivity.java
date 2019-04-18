@@ -180,7 +180,7 @@ public class GroupChatActivity extends ActivMatchActivity {
         String text = message.getText().toString();
         User user = storage.getUser();
         String date = dateFormat.format(new Date());
-        Message value = new Message("", groupId, date, text, user);
+        Message value = new Message(groupId, date, text, user);
         sendRequest(service.sendMessage(value),
                 m -> {
                     GenericAdapter<Pair<Integer, Message>> adapter = (GenericAdapter<Pair<Integer, Message>>) recyclerView.getAdapter();

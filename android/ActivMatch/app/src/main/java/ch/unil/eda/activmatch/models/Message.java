@@ -5,9 +5,6 @@ import com.google.gson.annotations.SerializedName;
 
 public class Message {
     @Expose
-    @SerializedName("id")
-    private String mMessageId;
-    @Expose
     @SerializedName("group")
     private String mGroupId;
     @Expose
@@ -20,20 +17,11 @@ public class Message {
     @SerializedName("date")
     private String mDate;
 
-    public Message(String messageId, String groupId, String date, String text, User creator) {
-        mMessageId = messageId;
+    public Message(String groupId, String date, String text, User creator) {
         mGroupId = groupId;
         mDate = date;
         mText = text;
         mCreator = creator;
-    }
-
-    public String getMessageId() {
-        return mMessageId;
-    }
-
-    public void setMessageId(String messageId) {
-        this.mMessageId = messageId;
     }
 
     public String getGroupId() {
