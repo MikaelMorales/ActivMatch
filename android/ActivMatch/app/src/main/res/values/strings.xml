@@ -22,6 +22,10 @@
     <!-- Settings activity -->
     <string name="settings_activity_title">Settings</string>
     <string name="settings_activity_notifications">Enable notifications</string>
+    <string name="settings_activity_subscriptions">Edit my topics</string>
+
+    <!-- SubscriptionsActivity -->
+    <string name="subscriptions_activity_title">My topics</string>
 
     <!-- Search activity -->
     <string name="activity_group_search_title">Subscribe to a topic</string>

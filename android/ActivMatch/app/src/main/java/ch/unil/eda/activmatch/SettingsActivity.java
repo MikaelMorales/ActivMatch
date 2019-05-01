@@ -1,5 +1,6 @@
 package ch.unil.eda.activmatch;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
@@ -18,7 +19,7 @@ import ch.unil.eda.activmatch.adapter.ViewId;
 import ch.unil.eda.activmatch.ui.CustomSwipeRefreshLayout;
 
 
-public class ActivMatchSettingsActivity extends ActivMatchActivity {
+public class SettingsActivity extends ActivMatchActivity {
 
     private RecyclerView recyclerView;
 
@@ -55,8 +56,20 @@ public class ActivMatchSettingsActivity extends ActivMatchActivity {
                 })
         ));
 
-        adapter.setCellDefinerForType(99, new CellView<>(
-                ViewId.of(R.layout.small_spacer_cell)
+        adapter.setCellDefinerForType(1, new CellView<>(
+                ViewId.of(R.layout.settings_cell),
+                new int[] { R.id.settings_text },
+                (id, item, view) -> {
+                    if (id == R.id.settings_text) {
+                        ((TextView) view).setText(R.string.settings_activity_subscriptions);
+                    }
+                },
+                (item, view) -> view.setOnClickListener(c ->
+                        startActivity(new Intent(this, SubscriptionsActivity.class)))
+        ));
+
+        adapter.setCellDefinerForType(2, new CellView<>(
+                ViewId.of(R.layout.sdk_separator)
         ));
 
         adapter.setViewTypeMapper(p -> p.first);
@@ -78,7 +91,8 @@ public class ActivMatchSettingsActivity extends ActivMatchActivity {
 
     private void updateDisplay() {
         List<Pair<Integer, SwitchWrapper>> items = new ArrayList<>();
-        items.add(new Pair<>(99, null));
+        items.add(new Pair<>(1, null));
+        items.add(new Pair<>(2, null));
         items.add(new Pair<>(0,
                 new SwitchWrapper(
                         getString(R.string.settings_activity_notifications),
