@@ -49,7 +49,9 @@ public class SubscriptionsActivity extends ActivMatchActivity {
                 new int[]{ R.id.subscription_name},
                 (id, item, view) -> {
                     if (id == R.id.subscription_name) {
-                        ((TextView) view).setText(item.second.getSelector());
+                        String s = item.second.getSelector(); // name LIKE 'TEST'
+                        int index = s.indexOf("'") + 1;
+                        ((TextView) view).setText(item.second.getSelector().substring(index, s.length()-1));
                     }
                 },
                 (item, view) -> {
