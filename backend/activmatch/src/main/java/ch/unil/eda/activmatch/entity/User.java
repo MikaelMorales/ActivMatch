@@ -1,13 +1,13 @@
 package ch.unil.eda.activmatch.entity;
 
 import java.io.Serializable;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
-@Entity
+@Embeddable
 public class User implements Serializable {
     
-    @Id
+    @Column(name = "user_id")
     private String id;
     
     private String name;

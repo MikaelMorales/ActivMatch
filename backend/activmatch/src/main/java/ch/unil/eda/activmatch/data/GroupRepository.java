@@ -17,7 +17,7 @@ public class GroupRepository {
     }
     
     public List<String> findMatches(String query) {
-        return em.createQuery("SELECT g FROM GROUP_ g WHERE g.name LIKE %" + query + "%").getResultList();
+        return em.createQuery("SELECT g.name FROM GROUP_ g WHERE g.name LIKE '%" + query + "%'").getResultList();
     }
     
     public List<Group> findAll() {
