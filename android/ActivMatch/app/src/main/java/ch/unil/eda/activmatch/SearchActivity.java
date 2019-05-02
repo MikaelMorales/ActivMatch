@@ -174,6 +174,7 @@ public class SearchActivity extends ActivMatchActivity {
                     int position = recyclerView.getChildAdapterPosition(v);
                     adapter.onItemDismiss(position);
                 }
+                storage.removeSubscriptionFilter(topicName);
                 alertDialog.dismiss();
                 if (v == null) {
                     finish();

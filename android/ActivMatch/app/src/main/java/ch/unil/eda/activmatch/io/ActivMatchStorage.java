@@ -20,6 +20,7 @@ public class ActivMatchStorage {
     private static final String STORAGE_USER_ID = "STORAGE_USER_ID";
     private static final String STORAGE_USER_NAME = "STORAGE_USER_NAME";
     private static final String STORAGE_GROUPS_ID = "STORAGE_GROUPS_ID";
+    private static final String STORAGE_SUBSCRIPTIONS_ID = "STORAGE_SUBSCRIPTIONS_ID";
     private static final String STORAGE_GROUPS_LEFT_ID = "STORAGE_GROUPS_LEFT_ID";
     private static final String STORAGE_MATCHES_ID = "STORAGE_MATCHES_ID";
     private static final String SETTINGS_NOTIFICATION_KEY = "SETTINGS_NOTIFICATION_KEY";
@@ -71,6 +72,23 @@ public class ActivMatchStorage {
     public Set<String> getGroupsLeft() {
         List<String> ids = getStringList(STORAGE_GROUPS_LEFT_ID, new ArrayList<>());
         return new HashSet<>(ids);
+    }
+
+    public Set<String> getSubscriptionsFilter() {
+        List<String> ids = getStringList(STORAGE_SUBSCRIPTIONS_ID, new ArrayList<>());
+        return new HashSet<>(ids);
+    }
+
+    public void addSubscriptionsFilter(String name) {
+        List<String> ids = getStringList(STORAGE_SUBSCRIPTIONS_ID, new ArrayList<>());
+        ids.add(name);
+        putStringList(STORAGE_SUBSCRIPTIONS_ID, ids);
+    }
+
+    public void removeSubscriptionFilter(String name) {
+        List<String> ids = getStringList(STORAGE_SUBSCRIPTIONS_ID, new ArrayList<>());
+        ids.remove(name);
+        putStringList(STORAGE_SUBSCRIPTIONS_ID, ids);
     }
 
     public boolean areNotificationsEnabled() {

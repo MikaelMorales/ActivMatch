@@ -1,7 +1,6 @@
 package ch.unil.eda.activmatch;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -37,7 +36,10 @@ import ch.unil.eda.activmatch.utils.ActivMatchPermissions;
 import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
 import io.matchmore.sdk.api.models.Match;
+import io.matchmore.sdk.api.models.MatchmoreLocation;
 import io.matchmore.sdk.api.models.PublicationWithLocation;
+import io.matchmore.sdk.managers.LocationSender;
+import io.matchmore.sdk.managers.MatchmoreLocationProvider;
 
 public class MainActivity extends ActivMatchActivity {
 
@@ -45,6 +47,7 @@ public class MainActivity extends ActivMatchActivity {
     private MatchmoreSDK matchmore;
     private Handler handler = new Handler();
     private FusedLocationProviderClient mFusedLocationClient;
+    private Location mLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +107,7 @@ public class MainActivity extends ActivMatchActivity {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            matchmore.startUpdatingLocation();
+            matchmore.startUpdatingLocation(new LocationProvider());
         }
     }
 
@@ -168,83 +171,81 @@ public class MainActivity extends ActivMatchActivity {
             MatchmoreSDK matchmore = Matchmore.getInstance();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                matchmore.startUpdatingLocation();
+                matchmore.startUpdatingLocation(new LocationProvider());
             } else {
                 finish();
             }
         }
     }
 
-    @SuppressLint("MissingPermission")
     private void updateDisplay() {
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
-            List < Pair < Integer, GroupHeading >> items = new ArrayList<>();
-            GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
-            Set<GroupHeading> groups = getGroups(location);
-            List<GroupHeading> sortedGroups = groups.stream().sorted(Comparator.comparing(GroupHeading::getName)).collect(Collectors.toList());
+        List < Pair < Integer, GroupHeading >> items = new ArrayList<>();
+        GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
+        Set<GroupHeading> groups = getGroups();
+        List<GroupHeading> sortedGroups = groups.stream().sorted(Comparator.comparing(GroupHeading::getName)).collect(Collectors.toList());
 
-            //Small spacer
-            items.add(new Pair<>(97, null));
-            if (sortedGroups.isEmpty()) {
-                items.add(new Pair<>(99, null));
-            } else {
-                for (GroupHeading g : sortedGroups) {
-                    items.add(new Pair<>(0, g));
-                }
+        //Small spacer
+        items.add(new Pair<>(97, null));
+        if (sortedGroups.isEmpty()) {
+            items.add(new Pair<>(99, null));
+        } else {
+            for (GroupHeading g : sortedGroups) {
+                items.add(new Pair<>(0, g));
             }
+        }
 
-            //Big spacer
+        //Big spacer
+        items.add(new Pair<>(98, null));
+        adapter.setItems(items);
+        adapter.notifyDataSetChanged();
+
+    }
+
+    private void pollForNewMatches() {
+        GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
+        Set<GroupHeading> groups = getGroups();
+        if (groups.isEmpty()) {
+            List<Pair<Integer, GroupHeading>> items = new ArrayList<>();
+            items.add(new Pair<>(97, null));
+            items.add(new Pair<>(99, null));
             items.add(new Pair<>(98, null));
             adapter.setItems(items);
             adapter.notifyDataSetChanged();
-        });
+            return;
+        }
+
+        List<Pair<Integer, GroupHeading>> displayedItems = adapter.getItems();
+        for (int i = 0; i < displayedItems.size(); i++) {
+            if (displayedItems.get(i).first == 0 && !groups.contains(displayedItems.get(i).second)) {
+                adapter.onItemDismiss(i);
+            }
+        }
+        Set<GroupHeading> displayed = adapter.getItems().stream().map(s -> s.second).filter(Objects::nonNull).collect(Collectors.toSet());
+        List<GroupHeading> sortedGroups = groups.stream().sorted(Comparator.comparing(GroupHeading::getName)).collect(Collectors.toList());
+        if (adapter.getItemCount() == 3 && adapter.getItems().get(1).first == 99) {
+            adapter.onItemDismiss(1);
+        }
+        adapter.onItemDismiss(adapter.getItemCount() - 1);
+        int length = adapter.getItemCount();
+        for (GroupHeading g : sortedGroups) {
+            if (!displayed.contains(g)) {
+                adapter.onItemAdd(length, new Pair<>(0, g));
+                length++;
+            }
+        }
+        adapter.onItemAdd(length, new Pair<>(98, null));
     }
 
-    @SuppressLint("MissingPermission")
-    private void pollForNewMatches() {
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
-            GenericAdapter<Pair<Integer, GroupHeading>> adapter = (GenericAdapter<Pair<Integer, GroupHeading>>) recyclerView.getAdapter();
-            Set<GroupHeading> groups = getGroups(location);
-            if (groups.isEmpty()) {
-                List<Pair<Integer, GroupHeading>> items = new ArrayList<>();
-                items.add(new Pair<>(97, null));
-                items.add(new Pair<>(99, null));
-                items.add(new Pair<>(98, null));
-                adapter.setItems(items);
-                adapter.notifyDataSetChanged();
-                return;
-            }
-
-            List<Pair<Integer, GroupHeading>> displayedItems = adapter.getItems();
-            for (int i = 0; i < displayedItems.size(); i++) {
-                if (displayedItems.get(i).first == 0 && !groups.contains(displayedItems.get(i).second)) {
-                    adapter.onItemDismiss(i);
-                }
-            }
-            Set<GroupHeading> displayed = adapter.getItems().stream().map(s -> s.second).filter(Objects::nonNull).collect(Collectors.toSet());
-            List<GroupHeading> sortedGroups = groups.stream().sorted(Comparator.comparing(GroupHeading::getName)).collect(Collectors.toList());
-            if (adapter.getItemCount() == 3 && adapter.getItems().get(1).first == 99) {
-                adapter.onItemDismiss(1);
-            }
-            adapter.onItemDismiss(adapter.getItemCount() - 1);
-            int length = adapter.getItemCount();
-            for (GroupHeading g : sortedGroups) {
-                if (!displayed.contains(g)) {
-                    adapter.onItemAdd(length, new Pair<>(0, g));
-                    length++;
-                }
-            }
-            adapter.onItemAdd(length, new Pair<>(98, null));
-        });
-    }
-
-    private Set<GroupHeading> getGroups(Location location) {
+    private Set<GroupHeading> getGroups() {
         Set<String> groupsLeft = storage.getGroupsLeft();
+        Set<String> subscriptionsRemoved = storage.getSubscriptionsFilter();
         Set<Match> matches = matchmore.getMatches();
         Set<GroupHeading> groups = new HashSet<>();
         for (Match m : matches) {
             PublicationWithLocation p = m.getPublication();
-            if (groupsLeft.contains(p.getId()) || !isInRange(m, location)) {
+            if (groupsLeft.contains(p.getId()) ||
+                    subscriptionsRemoved.contains(p.getProperties().get("name")) ||
+                    !isInRange(m)) {
                 continue;
             }
             groups.add(new GroupHeading(p.getId(), (String) p.getProperties().get("name"),
@@ -253,7 +254,11 @@ public class MainActivity extends ActivMatchActivity {
         return groups;
     }
 
-    private boolean isInRange(Match m, Location location) {
+    private boolean isInRange(Match m) {
+        if (mLocation == null) {
+            return false;
+        }
+
         Location publication = new Location("publication");
         PublicationWithLocation p = m.getPublication();
         publication.setLongitude(p.getLocation().getLongitude());
@@ -261,7 +266,27 @@ public class MainActivity extends ActivMatchActivity {
         publication.setAltitude(p.getLocation().getAltitude());
 
 
-        return publication.distanceTo(location) < (p.getRange() + m.getSubscription().getRange());
+        return publication.distanceTo(mLocation) < (p.getRange() + m.getSubscription().getRange());
     }
 
+    private class LocationProvider implements MatchmoreLocationProvider {
+
+        @Override
+        public void startUpdatingLocation(@NonNull LocationSender locationSender) {
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            mFusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                if (location != null) {
+                    mLocation = location;
+                    locationSender.sendLocation(new MatchmoreLocation(location.getLatitude(),
+                            location.getLongitude(), location.getAltitude()));
+                }
+            });
+        }
+
+        @Override
+        public void stopUpdatingLocation() {}
+    }
 }

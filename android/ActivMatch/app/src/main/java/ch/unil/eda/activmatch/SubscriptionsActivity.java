@@ -57,13 +57,16 @@ public class SubscriptionsActivity extends ActivMatchActivity {
                 },
                 (item, view) -> {
                     ImageView v = view.findViewById(R.id.subscription_delete);
-                    v.setOnClickListener(c -> {
-                        matchmore.getSubscriptions().delete(item.second, () -> {
-                            int pos = recyclerView.getChildAdapterPosition(view);
-                            adapter.onItemDismiss(pos);
-                            return Unit.INSTANCE;
-                        }, null);
-                    });
+                    v.setOnClickListener(c -> matchmore.getSubscriptions().delete(item.second, () -> {
+                        // Add to storage
+                        String s = item.second.getSelector(); // name LIKE 'TEST'
+                        int index = s.indexOf("'") + 1;
+                        storage.addSubscriptionsFilter(item.second.getSelector().substring(index, s.length()-1));
+                        // Remove from list
+                        int pos = recyclerView.getChildAdapterPosition(view);
+                        adapter.onItemDismiss(pos);
+                        return Unit.INSTANCE;
+                    }, null));
                 }
         ));
 
