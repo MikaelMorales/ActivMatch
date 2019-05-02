@@ -47,6 +47,7 @@ dependencies {
     implementation 'com.github.matchmore.alps-android-sdk:rx:0.7.2'
     implementation 'com.google.firebase:firebase-messaging:17.4.0'
     implementation 'com.eyalbira.loadingdots:loading-dots:1.0.2'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.12.1'
     testImplementation 'junit:junit:4.12'
 }
 

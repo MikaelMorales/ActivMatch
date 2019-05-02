@@ -19,6 +19,7 @@ import io.matchmore.sdk.Matchmore;
 import io.matchmore.sdk.MatchmoreSDK;
 import io.matchmore.sdk.api.models.Subscription;
 import io.matchmore.sdk.store.CRD;
+import kotlin.Unit;
 
 public class SubscriptionsActivity extends ActivMatchActivity {
 
@@ -57,9 +58,11 @@ public class SubscriptionsActivity extends ActivMatchActivity {
                 (item, view) -> {
                     ImageView v = view.findViewById(R.id.subscription_delete);
                     v.setOnClickListener(c -> {
-                        matchmore.getSubscriptions().delete(item.second);
-                        int pos = recyclerView.getChildAdapterPosition(view);
-                        adapter.onItemDismiss(pos);
+                        matchmore.getSubscriptions().delete(item.second, () -> {
+                            int pos = recyclerView.getChildAdapterPosition(view);
+                            adapter.onItemDismiss(pos);
+                            return Unit.INSTANCE;
+                        }, null);
                     });
                 }
         ));

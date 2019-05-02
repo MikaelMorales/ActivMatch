@@ -44,7 +44,7 @@ public class ActivMatchActivity extends AppCompatActivity {
 
         // Configuration of api key/world id
         if (!Matchmore.isConfigured()) {
-            Matchmore.config(this, getString(R.string.matchmore_api_key), true);
+            Matchmore.config(this, getString(R.string.matchmore_api_key), false);
         }
 
         MatchmoreSDK matchmore = Matchmore.getInstance();
