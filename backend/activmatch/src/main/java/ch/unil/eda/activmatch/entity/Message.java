@@ -1,12 +1,10 @@
 package ch.unil.eda.activmatch.entity;
 
 import java.io.Serializable;
-import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 
 @Entity
 public class Message implements Serializable {
@@ -17,13 +15,12 @@ public class Message implements Serializable {
 
     private String text;
 
-    private Date date;
-
-    @ManyToOne(fetch=FetchType.EAGER)
+    private String date;
+    
     private User creator;
 
-    @ManyToOne(fetch=FetchType.EAGER)
-    private Group group;
+    @Column(name = "group_id")
+    private String group;
 
     public Long getId() {
         return id;
@@ -41,11 +38,11 @@ public class Message implements Serializable {
         this.text = text;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -57,11 +54,11 @@ public class Message implements Serializable {
         this.creator = creator;
     }
 
-    public Group getGroup() {
+    public String getGroup() {
         return group;
     }
 
-    public void setGroup(Group group) {
+    public void setGroup(String group) {
         this.group = group;
     }
 }
