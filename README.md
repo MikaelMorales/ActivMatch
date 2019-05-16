@@ -6,6 +6,6 @@
 - The server will be implemented using **Payara** (JavaEE)
 
 
-### Project description draft:
-- The idea of the project is to build a group base application. People working/hanging together will be able to create groups and join them. When all the people in the group are available, the users will be notified so that they can meet-up and either work on their project or have fun depending on the purpose of the group.
-Each group will have several functionalities such as a small chat.
+### Project description:
+The idea of the project is to connect people with similar interests. People can add their topics of interests and create areas where people with similar interests can match. When a new match occurs, the user is notified and they can contact the people in this group through an embedded chat. This simplifies the relationship between the users, and allows to quickly plan a real life meeting so they can discuss about their common topics of interest.<br>
+The users are always in control and can, at any moment, remove one of their topics of interest or specifically hide a group.
