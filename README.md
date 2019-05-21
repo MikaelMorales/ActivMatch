@@ -2,8 +2,8 @@
 
 
 ### Technologies
-- The application will be on **Android using Java**.<br>
-- The server will be implemented using **Payara** (JavaEE)
+- The application is an **Android application written in Java**.<br>
+- The application server is a **Payara server** (JavaEE)
 
 
 ### Project description:
